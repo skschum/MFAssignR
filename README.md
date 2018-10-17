@@ -10,11 +10,11 @@ Gross, J. H.: Mass Spectrometry, doi:10.1007/978-3-319-54398-7, 2017.
 
 Herzsprung, P., Hertkorn, N., Tümpling, W. von, Harir, M., Friese, K. and Schmitt-Kopplin, P.: Understanding molecular formula assignment of Fourier transform ion cyclotron resonance mass spectrometry data of natural organic matter from a chemical point of view, Anal Bioanal Chem, 406(30), 7977–7987, doi:10.1007/s00216-014-8249-y, 2014.
 
-Koch, B. P., Dittmar, T., Witt, M. and Kattner, G.: Fundamentals of Molecular Formula Assignment to Ultrahigh Resolution Mass Data of Natural Organic Matter, Anal Chem, 79(4), 1758–1763, doi:10.1021/ac061949s , 2007.
+Koch, B. P., Dittmar, T., Witt, M. and Kattner, G.: Fundamentals of Molecular Formula Assignment to Ultrahigh Resolution Mass Data of Natural Organic Matter, Anal Chem, 79(4), 1758–1763, doi:10.1021/ac061949s, 2007.
 
 Kozhinov, A. N., Zhurov, K. O. and Tsybin, Y. O.: Iterative Method for Mass Spectra Recalibration via Empirical Estimation of the Mass Calibration Function for Fourier Transform Mass Spectrometry-Based Petroleomics, Anal Chem, 85(13), 6437–6445, doi:10.1021/ac400972y, 2013.
 
-Kujawinski, E. B. and Behn, M. D.: Automated Analysis of Electrospray Ionization Fourier Transform Ion Cyclotron Resonance Mass Spectra of Natural Organic Matter, Anal Chem, 78(13), 4363–4373, doi:10.1021/ac0600306 , 2006.
+Kujawinski, E. B. and Behn, M. D.: Automated Analysis of Electrospray Ionization Fourier Transform Ion Cyclotron Resonance Mass Spectra of Natural Organic Matter, Anal Chem, 78(13), 4363–4373, doi:10.1021/ac0600306, 2006.
 
 Lobodin, V. V., Marshall, A. G. and Hsu, C. S.: Compositional Space Boundaries for Organic Compounds, Anal Chem, 84(7), 3410–3416, doi:10.1021/ac300244f, 2012.
 
