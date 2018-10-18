@@ -57,6 +57,8 @@ The functions will be described in the order that they are most effectively used
 8. Check the output plots from MFAssign() to check the quality of the assignment.
 
 ## References
+The functions in the MFAssignR package were developed by adapting methods and algorithms from the peer reviewed literature. The following references are referred to in this document:
+
 Green, N. W. and Perdue, E. M.: Fast Graphically Inspired Algorithm for Assignment of Molecular Formulae in Ultrahigh Resolution Mass Spectrometry, Anal Chem, 87(10), 5086–5094, doi:10.1021/ac504166t, 2015.
 
 Gross, J. H.: Mass Spectrometry, doi:10.1007/978-3-319-54398-7, 2017. 
