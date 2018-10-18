@@ -2,28 +2,6 @@
 ## Package Overview and References
 The MFAssignR package was designed for multi-element molecular formula (MF) assignment of ultrahigh resolution mass spectrometry measurements. A number of tools for internal mass recalibration, MF assignment, signal-to-noise evaluation, and unambiguous formula selections are provided. This package contains MFAssign(), MFAssignCHO(), MFAssignAll(), SNplot(), SNcutCheck(), MFRecalList(), MFRecalCheck(), and IsoFiltR() described in the sections below. Caution with parameter settings and output evaluation is recommended.
 
-The functions in the MFAssignR package were developed by adapting methods and algorithms from the peer reviewed literature. The following references are referred to in this document:
-
-Green, N. W. and Perdue, E. M.: Fast Graphically Inspired Algorithm for Assignment of Molecular Formulae in Ultrahigh Resolution Mass Spectrometry, Anal Chem, 87(10), 5086–5094, doi:10.1021/ac504166t, 2015.
-
-Gross, J. H.: Mass Spectrometry, doi:10.1007/978-3-319-54398-7, 2017. 
-
-Herzsprung, P., Hertkorn, N., Tümpling, W. von, Harir, M., Friese, K. and Schmitt-Kopplin, P.: Understanding molecular formula assignment of Fourier transform ion cyclotron resonance mass spectrometry data of natural organic matter from a chemical point of view, Anal Bioanal Chem, 406(30), 7977–7987, doi:10.1007/s00216-014-8249-y, 2014.
-
-Koch, B. P., Dittmar, T., Witt, M. and Kattner, G.: Fundamentals of Molecular Formula Assignment to Ultrahigh Resolution Mass Data of Natural Organic Matter, Anal Chem, 79(4), 1758–1763, doi:10.1021/ac061949s, 2007.
-
-Kozhinov, A. N., Zhurov, K. O. and Tsybin, Y. O.: Iterative Method for Mass Spectra Recalibration via Empirical Estimation of the Mass Calibration Function for Fourier Transform Mass Spectrometry-Based Petroleomics, Anal Chem, 85(13), 6437–6445, doi:10.1021/ac400972y, 2013.
-
-Kujawinski, E. B. and Behn, M. D.: Automated Analysis of Electrospray Ionization Fourier Transform Ion Cyclotron Resonance Mass Spectra of Natural Organic Matter, Anal Chem, 78(13), 4363–4373, doi:10.1021/ac0600306, 2006.
-
-Lobodin, V. V., Marshall, A. G. and Hsu, C. S.: Compositional Space Boundaries for Organic Compounds, Anal Chem, 84(7), 3410–3416, doi:10.1021/ac300244f, 2012.
-
-Ohno, T. and Ohno, P. E.: Influence of heteroatom pre-selection on the molecular formula assignment of soil organic matter components determined by ultrahigh resolution mass spectrometry, Anal Bioanal Chem, 405(10), 3299–3306, doi:10.1007/s00216-013-6734-3, 2013.
-
-Perdue, E. M. and Green, N. W.: Isobaric Molecular Formulae of C, H, and O: A View from the Negative Quadrants of van Krevelen Space, Anal Chem, 87(10), 5079–5085, doi:10.1021/ac504165k, 2015.
-
-Zhurov, K. O., Kozhinov, A. N., Fornelli, L. and Tsybin, Y. O.: Distinguishing Analyte from Noise Components in Mass Spectra of Complex Samples: Where to Cut the Noise, Anal Chem, 86(7), 3308–3316, doi:10.1021/ac403278t, 2014. 
-
 ## Molecular Formula Assignment
 The molecular formula assignment algorithm in MFAssign was adapted from the low mass moiety CHOFIT assignment algorithm developed by Green and Perdue (2015). Briefly, the CHOFIT algorithm uses low mass moieties such as CH4O-1 and C4O-3 to move around in the O/C and H/C space to assign masses to CHO formulas. These low mass moieties efficiently assign CHO formulas without conventional loops. Additional combinatorial assignments with various heteroatoms are made using nested loops that subtract the mass of a heteroatom from the measured ion mass, creating a CHO “core” mass, which can then be assigned using the low mass moiety CHOFIT approach. This is further explained in Green and Perdue (2015) and Perdue and Green (2015). 
 
@@ -77,3 +55,24 @@ The functions will be described in the order that they are most effectively used
 7. Use MFAssign() with the recalibrated mass lists to assign molecular formulas to the data.
  
 8. Check the output plots from MFAssign() to check the quality of the assignment.
+
+## References
+Green, N. W. and Perdue, E. M.: Fast Graphically Inspired Algorithm for Assignment of Molecular Formulae in Ultrahigh Resolution Mass Spectrometry, Anal Chem, 87(10), 5086–5094, doi:10.1021/ac504166t, 2015.
+
+Gross, J. H.: Mass Spectrometry, doi:10.1007/978-3-319-54398-7, 2017. 
+
+Herzsprung, P., Hertkorn, N., Tümpling, W. von, Harir, M., Friese, K. and Schmitt-Kopplin, P.: Understanding molecular formula assignment of Fourier transform ion cyclotron resonance mass spectrometry data of natural organic matter from a chemical point of view, Anal Bioanal Chem, 406(30), 7977–7987, doi:10.1007/s00216-014-8249-y, 2014.
+
+Koch, B. P., Dittmar, T., Witt, M. and Kattner, G.: Fundamentals of Molecular Formula Assignment to Ultrahigh Resolution Mass Data of Natural Organic Matter, Anal Chem, 79(4), 1758–1763, doi:10.1021/ac061949s, 2007.
+
+Kozhinov, A. N., Zhurov, K. O. and Tsybin, Y. O.: Iterative Method for Mass Spectra Recalibration via Empirical Estimation of the Mass Calibration Function for Fourier Transform Mass Spectrometry-Based Petroleomics, Anal Chem, 85(13), 6437–6445, doi:10.1021/ac400972y, 2013.
+
+Kujawinski, E. B. and Behn, M. D.: Automated Analysis of Electrospray Ionization Fourier Transform Ion Cyclotron Resonance Mass Spectra of Natural Organic Matter, Anal Chem, 78(13), 4363–4373, doi:10.1021/ac0600306, 2006.
+
+Lobodin, V. V., Marshall, A. G. and Hsu, C. S.: Compositional Space Boundaries for Organic Compounds, Anal Chem, 84(7), 3410–3416, doi:10.1021/ac300244f, 2012.
+
+Ohno, T. and Ohno, P. E.: Influence of heteroatom pre-selection on the molecular formula assignment of soil organic matter components determined by ultrahigh resolution mass spectrometry, Anal Bioanal Chem, 405(10), 3299–3306, doi:10.1007/s00216-013-6734-3, 2013.
+
+Perdue, E. M. and Green, N. W.: Isobaric Molecular Formulae of C, H, and O: A View from the Negative Quadrants of van Krevelen Space, Anal Chem, 87(10), 5079–5085, doi:10.1021/ac504165k, 2015.
+
+Zhurov, K. O., Kozhinov, A. N., Fornelli, L. and Tsybin, Y. O.: Distinguishing Analyte from Noise Components in Mass Spectra of Complex Samples: Where to Cut the Noise, Anal Chem, 86(7), 3308–3316, doi:10.1021/ac403278t, 2014. 
