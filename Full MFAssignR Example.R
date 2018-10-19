@@ -7,7 +7,7 @@
 install.packages("devtools")
 
 setwd("Whatever directory the MFAssignR folder is in.")
-devtools::install(MFAssignR)
+devtools::install("MFAssignR")
 ####################
 library(MFAssignR)
 setwd("Your data directory")
