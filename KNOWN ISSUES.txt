@@ -1,0 +1,10 @@
+Known Issues
+
+MFAssign functions
+
+Positive mode odd electron assignment (POEx) does not work yet.
+
+Only singly charged compounds can be assigned.
+
+
+
