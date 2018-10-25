@@ -3,6 +3,7 @@ Known Issues
 MFAssign functions
 
 Positive mode odd electron assignment (POEx) does not work yet.
+- Working as of 10/25/2018 (v 0.0.2)
 
 Only singly charged compounds can be assigned.
 
