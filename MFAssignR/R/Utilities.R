@@ -44,11 +44,13 @@ CompFactorToInt <- function(x) {
          "N15" = {y <- 9},
          "D"   = {y <- 10},
          "Cl"  = {y <- 11},
-         "Cl37"= {y <- 12},
-         "M"   = {y <- 13},
-         "NH4" = {y <- 14},
-         "POE"  = {y <- 15},
-         "Z"   = {y <- 16},
+         "Fl"  = {y <- 12},
+         "Cl37"= {y <- 13},
+         "M"   = {y <- 14},
+         "NH4" = {y <- 15},
+         "POE"  = {y <- 16},
+         "NOE"  = {y <- 17},
+         "Z"   = {y <- 18},
          { stop("CompFactorToInt called on undefined component ") })
   return(y)
 }
@@ -65,7 +67,8 @@ CompFactorToInt <- function(x) {
 #' @param x component; numeric; integer representation for component
 #'
 #'
-#' @return factor (\code{"C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "Z"})
+#' @return factor (\code{"C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+# "Cl37", "M", "NH4", "POE", "NOE", "Z"})
 #'
 #' @examples
 #' CompIntToFactor(1)
@@ -77,42 +80,65 @@ CompFactorToInt <- function(x) {
 CompIntToFactor <- function(x) {
   # CompIntToFactor - Component integer to factor
   # input: numeric
-  # output: factor {"C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "Z"}
+  # output: factor {"C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+  # "Cl37", "M", "NH4", "POE", "NOE", "Z"}
   y <- NA
   switch(x,
          {y <- factor("C",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("H",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("O",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("N",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("S",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("P",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("E",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("S34",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("N15",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("D",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("Cl",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
+         {y <- factor("Fl",
+                     levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                              "Cl37", "M", "NH4","POE", "NOE", "Z"))},
 
          {y <- factor("Cl37",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("M",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("NH4",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("POE",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4","POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
+         {y <- factor("NOE",
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          {y <- factor("Z",
-                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl",  "Cl37", "M", "NH4", "POE", "Z"))},
+                      levels=c("C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Fl",
+                               "Cl37", "M", "NH4","POE", "NOE", "Z"))},
          { stop("CompIntToFactor called on undefined component ") })
   return(y)
 }
@@ -153,7 +179,9 @@ NM <- function(x) {
          "N15" = {y <- 16},
          "D"   = {y <- 1},
          "Cl"  = {y <- 35},
+         "Fl"  = {y <- 19},
          "POE"  = {y <- 1},
+         "NOE"  = {y <- (-1)},
          "Cl37"= {y <- 37},
          "M"   = {y <- 22},
          "NH4" = {y <- 17},
@@ -205,7 +233,10 @@ EM <- function(x) {
          "Z"  = {y <- 0.0005485799},
          "Cl35" = {y <- 34.968853},
          "Cl" = {y <- 35.976678},
+         "Fl19" = {y <- 18.998403},
+         "Fl" = {y <- 20.006228},
          "POE" = {y <- 1.007825049},
+         "NOE" = {y <- (-1.007825049)},
          "NH4+"  = {y <- 18.033827},
          "NH4" = {y <- 17.026550},
          "Cl37" = {y <- 37.973728},
@@ -218,7 +249,7 @@ EM <- function(x) {
   return(y)
 }
 
-mass <- 18.0343741-1.00727645216
+#mass <- 18.998403+1.0078250319
 
 #' Minimum limit of moles (program limit)
 #'
@@ -255,7 +286,9 @@ MinMoles <- function(x) {
          "E"  = {y <- 0},
          "Z"  = {y <- 1},
          "Cl" = {y <- 0},
+         "Fl" = {y <- 0},
          "POE" = {y <- 0},
+         "NOE" = {y <- 0},
          "Cl37" = {y <- 0},
          "S34" = {y <- 0},
          "C13" = {y <- 0},
@@ -298,7 +331,9 @@ MaxMoles <- function(x) {
          "E"  = {y <-   3},
          "Z"  = {y <-   5},
          "Cl" = {y <-   5},
+         "Fl" = {y <-   5},
          "POE" = {y <-   1},
+         "NOE" = {y <-   1},
          "Cl37" = {y <- 3},
          "S34" = {y <-  3},
          { stop("MaxMoles called on undefined component ") })
@@ -342,7 +377,9 @@ LowMoles <- function(x) {
          "E"  = {y <- 0},
          "Z"  = {y <- 1},
          "Cl" = {y <- 0},
+         "Fl" = {y <- 0},
          "POE" = {y <- 0},
+         "NOE" = {y <- 0},
          "N15" = {y <- 0},
          "D" = {y <- 0},
          "NH4" = {y <- 0},
@@ -374,7 +411,7 @@ LowMoles <- function(x) {
 #'
 #' @export
 #'
-HighMoles <- function(x, N=0, S=0, P=0, Cl=0, POE = 0, E=0, S34=0, Cl37=0,
+HighMoles <- function(x, N=0, S=0, P=0, Cl=0, Fl = 0, POE = 0, NOE = 0, E=0, S34=0, Cl37=0,
                       N15=0, D=0, M=0, NH4=0, Z=1) {
   # max_moles - user suplied limit on maximum moles
   # input:  factor {"C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "Z"}
@@ -391,7 +428,9 @@ HighMoles <- function(x, N=0, S=0, P=0, Cl=0, POE = 0, E=0, S34=0, Cl37=0,
          "E"  = {y <- E},
          "Z"  = {y <- Z},
          "Cl" = {y <- Cl},
+         "Fl" = {y <- Fl},
          "POE" = {y <- POE},
+         "NOE" = {y <- NOE},
          "N15" = {y <- N15},
          "D"  = {y <- D},
          "NH4" = {y <- NH4},
@@ -436,7 +475,9 @@ Valence <- function(x) {
          "E"  = {y <- 0},
          "Z"  = {y <- 0},
          "Cl" = {y <- 1},
+         "Fl" = {y <- 1},
          "POE" = {y <- 0},
+         "NOE" = {y <- 0},
          "N15" = {y <- 3},
          "D" = {y <- 1},
          "NH4" = {y <- 0},
@@ -520,7 +561,7 @@ ValidFormula <- function(moles) {
   sum <- 0
   for (i in CompFactorToInt("C"):CompFactorToInt("NH4")) {
     if ((i==CompFactorToInt("N")) | (i==CompFactorToInt("P"))| (i==CompFactorToInt("Cl"))|
-        (i==CompFactorToInt("N15")) | (i==CompFactorToInt("Cl37"))) {
+        (i==CompFactorToInt("N15")) | (i==CompFactorToInt("Cl37"))| (i==CompFactorToInt("Fl"))) {
       sum <- sum + unlist(moles[i])*Valence(CompIntToFactor(i)) + unlist(moles[i])*2
     } else {
       sum <- sum + unlist(moles[i])*Valence(CompIntToFactor(i))
