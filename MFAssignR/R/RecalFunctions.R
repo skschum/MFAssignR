@@ -50,7 +50,7 @@
 #' MFRecalList(df = Data)
 #' @export
 #df = Unambig2
-MFRecalList2 <- function(df){
+MFRecalList <- function(df){
   df$number <- 1
   df$Adduct <- "H"
   df$Adduct <- replace(df$Adduct, df$M > 0, "Na")
@@ -172,7 +172,7 @@ MFRecalList2 <- function(df){
 #' @export
 
 
-MFRecalCheck2 <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA, series2=NA, series3=NA, series4=NA, series5=NA,
+MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA, series2=NA, series3=NA, series4=NA, series5=NA,
                            series6=NA, series7=NA, series8=NA, series9=NA, series10=NA, min = 100, max = 1000,
                            bin = 20, obs = 2){
   #Preparation of the recalibrants list
