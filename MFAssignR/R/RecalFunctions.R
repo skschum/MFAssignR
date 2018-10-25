@@ -49,12 +49,13 @@
 #' @examples
 #' MFRecalList(df = Data)
 #' @export
-
-MFRecalList <- function(df){
+#df = Unambig2
+MFRecalList2 <- function(df){
   df$number <- 1
   df$Adduct <- "H"
   df$Adduct <- replace(df$Adduct, df$M > 0, "Na")
   df$Adduct <- replace(df$Adduct, df$POE == 1, "OE")
+  df$Adduct <- replace(df$Adduct, df$NOE == 1, "OE")
   df$SeriesAdd <- paste(df$class, df$Adduct, sep = "_")
 
   df1 <- subset(aggregate(number ~ SeriesAdd + DBE, df,
@@ -71,16 +72,16 @@ MFRecalList <- function(df){
                          Maxmass = ifelse(Abundance == max(Abundance), Exp_mass, NA), Maxint = max(Abundance),
                          Secint = sort(Abundance, TRUE)[2], Secmass = ifelse(Abundance ==sort(Abundance, TRUE)[2],Exp_mass,NA ))
 
-  Maxmass1 <- Recal[c(1,50)]
+  Maxmass1 <- Recal[c(1,52)] #Select Maxmass
   Maxmass1 <- Maxmass1[!is.na(Maxmass1$Maxmass),]
-  Secmass1 <- Recal[c(1,53)]
+  Secmass1 <- Recal[c(1,55)] #Select Secmass
   Secmass1 <- Secmass1[!is.na(Secmass1$Secmass),]
 
   Recal <- merge(Recal, Maxmass1, by.x = c("Series"), by.y = c("Series"))
   Recal <- merge(Recal, Secmass1, by.x = c("Series"), by.y = c("Series"))
 
   Recal <- Recal[Recal$number.y > 3,]
-  names(Recal)[50] <- "Maxmass"
+  names(Recal)[52] <- "Maxmass"
   Recal <- Recal[!is.na(Recal$Maxmass),]
   Recal$M.window <- "a"
   Recal$M.window[Recal$Maxmass> 0 & Recal$Maxmass < 200] <- "0-200"
@@ -99,7 +100,7 @@ MFRecalList <- function(df){
   Recal$IntRel <- (Recal$MInt.x-Recal$MInt.y)/Recal$MInt.y *100
   Recal$Peakcomp <- log10(Recal$Maxint/Recal$Secint)
   Recal$Nextpeak <- abs((Recal$Maxmass.y-Recal$Secmass.y)/14)
-  Recal <- Recal[c(2,46:60)]
+  Recal <- Recal[c(2,48:62)]
   Recal$Min <- round(Recal$Min, 3)
   Recal$Max <- round(Recal$Max, 3)
   Recal$SerScor <- ((Recal$Max-Recal$Min)/14+1)/Recal$number.y
@@ -171,7 +172,7 @@ MFRecalList <- function(df){
 #' @export
 
 
-MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA, series2=NA, series3=NA, series4=NA, series5=NA,
+MFRecalCheck2 <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA, series2=NA, series3=NA, series4=NA, series5=NA,
                            series6=NA, series7=NA, series8=NA, series9=NA, series10=NA, min = 100, max = 1000,
                            bin = 20, obs = 2){
   #Preparation of the recalibrants list
@@ -183,19 +184,30 @@ MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA,
   df$Adduct <- "H"
   df$Adduct <- replace(df$Adduct, df$M > 0, "Na")
   df$Adduct <- replace(df$Adduct, df$POE == 1, "OE")
+  df$Adduct <- replace(df$Adduct, df$NOE == 1, "OE")
   df$series <- paste(df$class, df$Adduct, df$DBE, sep = "_")
   df$mode <- mode
 
 
-  peaks <- peaks[c(2,1)]
-  isopeaks <- isopeaks[c(2,1)]
+  isopeaks <- if(isopeaks == "None") data.frame(mass = 1, Abundance = 1) else isopeaks
+  names(isopeaks)[1] <- "mass"
+  names(isopeaks)[2] <- "Abundance"
+  names(peaks)[1] <- "mass"
+  names(peaks)[2] <- "Abundance"
+  peaks$Tag <- "Mono"
+  isopeaks$Tag <- "Iso"
+  peaks <- if(isopeaks != "None") rbind(peaks, isopeaks) else peaks
+
+  peaks <- peaks[c(2,1,3)]
+  #isodummy <- data.frame
+  isopeaks <- isopeaks[c(2,1,3)]
 
   #Merges recalibrant list to df in order to determine which recalibrants are in the data frame.
   RecalList2 <- merge(df, RecalList, by.x = "series", by.y = "series")
 
   #Prepares the recalibrant masses for use in recalibration steps.
   RecalList <- RecalList2[c("Abundance", "Exp_mass", "C", "H", "O", "N", "S", "P", "E",
-                            "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                            "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
   RecalList$NM <- round(RecalList$Exp_mass)
 
   RecalList$KM_O <- RecalList$Exp_mass * (16/15.9949146223)
@@ -219,7 +231,7 @@ MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA,
 
   ############
   #Picking recalibrants with series
-  knownO <- RecalList[c(1:18,21,22)]
+  knownO <- RecalList[c(1:20,23,24)]
 
   names(knownO)[2] <- "base_mass"
   Step2 <- merge(Rest, knownO, by.x = c("KMD_O", "z_O"), by.y = c("KMD_O", "z_O"))
@@ -227,18 +239,20 @@ MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA,
   Step2$O <- Step2$O + Step2$O_num
   Step2$Type <- "O"
   Step2$form <- paste(Step2$C, Step2$H, Step2$O, Step2$N, Step2$S, Step2$P, Step2$E, Step2$S34,
-                      Step2$N15, Step2$D, Step2$Cl37, Step2$Cl37, Step2$M, Step2$NH4, Step2$POE, sep = "_")
-  Step2 <- Step2[-c(10,28)]
+                      Step2$N15, Step2$D, Step2$Cl, Step2$Fl, Step2$Cl37, Step2$M, Step2$NH4,
+                      Step2$POE, Step2$NOE, sep = "_")
+  Step2 <- Step2[-c(10,30)]
 
-  knownH2 <- RecalList[c(1:18,24,25)]
+  knownH2 <- RecalList[c(1:20,26,27)]
   names(knownH2)[2] <- "base_mass"
   Step3 <- merge(Rest, knownH2, by.x = c("KMD_H2", "z_H2"), by.y = c("KMD_H2", "z_H2"))
   Step3$H2_num <- round(((Step3$Exp_mass - Step3$base_mass))/2.01565)
   Step3$H <- Step3$H + 2*Step3$H2_num
   Step3$Type <- "H2"
   Step3$form <- paste(Step3$C, Step3$H, Step3$O, Step3$N, Step3$S, Step3$P, Step3$E, Step3$S34,
-                      Step3$N15, Step3$D, Step3$Cl37, Step3$Cl37, Step3$M, Step3$NH4, Step3$POE, sep = "_")
-  Step3 <- Step3[-c(10,28)]
+                      Step3$N15, Step3$D, Step3$Cl, Step3$Fl, Step3$Cl37, Step3$M, Step3$NH4,
+                      Step3$POE, Step3$NOE, sep = "_")
+  Step3 <- Step3[-c(10,30)]
 
   Out <- rbind(Step2, Step3)
   Out2 <- dplyr::distinct(Out, Exp_mass)
@@ -255,14 +269,14 @@ MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA,
 
   #Recalibration for all masses
   #Prepare the mass lists for recalibration
-  isopeaks <- if(isopeaks == "None") data.frame(Abundance = 1, mass = 1) else isopeaks
-  names(isopeaks)[1] <- "Abundance"
-  names(isopeaks)[2] <- "mass"
-  names(peaks)[1] <- "Abundance"
-  names(peaks)[2] <- "mass"
-  peaks$Tag <- "Mono"
-  isopeaks$Tag <- "Iso"
-  peaks <- if(isopeaks != "None") rbind(peaks, isopeaks) else peaks
+  # isopeaks <- if(isopeaks == "None") data.frame(Abundance = 1, mass = 1) else isopeaks
+  # names(isopeaks)[1] <- "Abundance"
+  # names(isopeaks)[2] <- "mass"
+  # names(peaks)[1] <- "Abundance"
+  # names(peaks)[2] <- "mass"
+  # peaks$Tag <- "Mono"
+  # isopeaks$Tag <- "Iso"
+  # peaks <- if(isopeaks != "None") rbind(peaks, isopeaks) else peaks
 
   #Calculating the weights needed for recalibration and calculating the recalibrated masses.
   names(NewRecal)[1] <- "E_mass"
@@ -314,7 +328,7 @@ MFRecalCheck <- function( df, peaks, isopeaks = "None",mode, SN = 0, series1=NA,
 
   #Preparing the final output of the function, the recalibrants list.
 
-  RecalOut <- FinalRecal3[c(1, 3, 23, 49, 25)]
+  RecalOut <- FinalRecal3[c(1, 3, 25, 51, 27)]
   names(RecalOut)[2] <- "formula"
   names(RecalOut)[3] <- "theor_mass"
   names(RecalOut)[4] <- "Recal_err"
