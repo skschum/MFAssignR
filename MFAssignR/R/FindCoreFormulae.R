@@ -48,8 +48,10 @@ FindCoreFormulae <- function(env) {
                                   P = env$loop[CompFactorToInt("P")], E = env$loop[CompFactorToInt("E")],
                                   S34 = env$loop[CompFactorToInt("S34")], N15 = env$loop[CompFactorToInt("N15")],
                                   D = env$loop[CompFactorToInt("D")], Cl = env$loop[CompFactorToInt("Cl")],
+                                  Fl = env$loop[CompFactorToInt("Fl")],
                                   Cl37 = env$loop[CompFactorToInt("Cl37")], M = env$loop[CompFactorToInt("M")],
                                   NH4 = env$loop[CompFactorToInt("NH4")], POE = env$loop[CompFactorToInt("POE")],
+                                  NOE = env$loop[CompFactorToInt("NOE")],
                                   Z = env$loop[CompFactorToInt("Z")],
                                   Neutral_mass = env$exactEM, CHO_mass = env$coreCEM, CHO_Err = env$xemErr, Ratio = env$Ratio)}}
 
