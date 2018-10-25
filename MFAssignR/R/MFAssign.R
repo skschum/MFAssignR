@@ -2,11 +2,11 @@
 #'
 #' MFAssign assigns all possible molecular formulae to each
 #' mass in the input file, subject to user constraints on the moles of
-#' C, H, O, N, S, P, sodium (M), C13 (E), S34, N15, Deuterium (D), Cl, Cl37, NH4, and Z.
+#' C, H, O, N, S, P, sodium (M), C13 (E), S34, N15, Deuterium (D), Cl, F, Cl37, NH4, and Z.
 #'
 #' There are user inputs for heteroatoms, adducts, and charge.
 #' The terms for each are Nx, Sx, Px, Ex, S34x, N15x, Dx,
-#' Clx, Cl37x, Mx, NH4x, and Zx. Basic QA steps are included within the
+#' Clx, Fx, Cl37x, Mx, NH4x, and Zx. Basic QA steps are included within the
 #' function. More detail about these QA steps can be seen in the
 #' vignette and user manual attached to this package.
 #' Additionally, an option to remove ambiguous assignments based on choosing
@@ -42,6 +42,9 @@
 #' @param POEx numeric:
 #' If set to 1 and ionMode is positive, positive mode odd electron ions can be assigned.
 #' Default is 0
+#' @param NOEx numeric:
+#' If set to 1 and ionMode is negative, negative mode odd electron ions can be assigned.
+#' Default is 0
 #' @param Nx numeric:
 #' Sets the maximum allowable number of Nitrogen 14 to be used in assignment. Default is 0.
 #' @param Sx numeric:
@@ -58,6 +61,8 @@
 #' Sets the amount of Deuterium to be used in assignment. Default is 0.
 #' @param Clx numeric:
 #' Sets the amount of Chlorine to be used in assignment. Default is 0.
+#' @param Fx numeric:
+#' Sets the amount of Fluorine to be used in assignment. Default is 0.
 #' @param Cl37x numeric:
 #' Sets the amount of Chlorine 37 to be used in assignment. Default is 0.
 #' @param Mx numeric:
@@ -113,18 +118,19 @@
 #' @export
 
 
-MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, POEx = 0, Nx=0,Sx=0, Px=0, S34x=0,
-                                  N15x=0, Dx=0,Ex=0, Clx=0, Cl37x=0, Mx=0, NH4x=0, Zx=1, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
+MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, POEx = 0, NOEx = 0, Nx=0,Sx=0, Px=0, S34x=0,
+                                  N15x=0, Dx=0,Ex=0, Clx=0, Cl37x=0, Fx = 0, Mx=0, NH4x=0, Zx=1, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
                                   O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13, Omin = 0, HetCut = "off",
                                   NMScut = "on", DeNovo = 300, nLoop = 5) {
 
   if(POEx >1) print('WARNING: Positive Odd Electron (POEx) is greater than 1, are you sure that is what you want?')
+  if(NOEx >1) print('WARNING: Positive Odd Electron (NOEx) is greater than 1, are you sure that is what you want?')
 
   if(ionMode != "pos" & ionMode != "neg") print("WARNING: ionMode should be 'pos' or 'neg' ")
 
   #if(ionMode != "neg") print("WARNING: ionMode should be 'neg'")
 
-  if(Nx > 5 | Sx > 5|Px >5|S34x>5|N15x >5|Dx>5|Ex>5|Clx > 5|Cl37x>5|Mx>5|NH4x>5)
+  if(Nx > 5 | Sx > 5|Px >5|S34x>5|N15x >5|Dx>5|Ex>5|Clx > 5|Cl37x>5|Mx>5|NH4x>5|Fx > 5)
     print("WARNING: One or more heteroatoms are set greater than 5, this will cause the function to perform more slowly.")
 
   if(Ox !=30) print("WARNING: Ox is not at its default value, this will cause the core formula algorithm to perform additional
@@ -133,10 +139,10 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
   if(ppm_err > 3) print("WARNING: The maximum allowed error (ppm_err) is greater than 3, is this what you want?")
 
   # Constants
-  components <- factor(c("C", "H", "O", "N", "S", "P", "Cl", "E", "S34", "N15", "D", "Cl37",
-                         "M", "NH4", "POE","Z"),
-                       levels=c("C", "H", "O", "N", "S", "P", "Cl",  "E", "S34", "N15", "D", "Cl37",
-                                "M", "NH4", "POE","Z"))
+  components <- factor(c("C", "H", "O", "N", "S", "P", "Cl", "Fl","E", "S34", "N15", "D", "Cl37",
+                         "M", "NH4", "POE","NOE", "Z"),
+                       levels=c("C", "H", "O", "N", "S", "P", "Cl", "Fl",  "E", "S34", "N15", "D", "Cl37",
+                                "M", "NH4", "POE", "NOE", "Z"))
   numComps <- length(components)
   proton = 1.00727645216
   electron =  0.000548597
@@ -212,7 +218,7 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
     moles <- vector(mode="numeric", length=numComps)
     loop <- vector(mode="numeric", length=numComps)
-
+#}#
     # Convert the (presumably) single-charged ion to a molecule
 
     if (ionMode=="neg") {
@@ -238,6 +244,9 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
                                loop[CompFactorToInt("Z")] - 1)
         }
 
+        loop[CompFactorToInt("NOE")] <- 0 #LowMoles("NOE")
+        repeat {
+
         loop[CompFactorToInt("POE")] <- 0 #LowMoles("POE")
         repeat {
 
@@ -249,6 +258,9 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
               loop[CompFactorToInt("Cl37")] <- 0 #LowMoles("Cl37")
               repeat {
+
+                loop[CompFactorToInt("Fl")] <- 0 #LowMoles("Fl")
+                repeat {
 
                 loop[CompFactorToInt("Cl")] <- 0 #LowMoles("Cl")
                 repeat {
@@ -279,8 +291,9 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
                                 coreXEM <- exactEM
 
                                 ###Make sure this shouldn't start at E
-                                for (step in CompFactorToInt("N"):CompFactorToInt("POE")) {
+                                for (step in CompFactorToInt("N"):CompFactorToInt("NOE")) {
                                   coreXEM = coreXEM - unlist(loop[step])*EM(CompIntToFactor(step))
+
                                 }
 
                                 if (coreXEM >= 16.0313) {
@@ -361,6 +374,12 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
                   }
                 } # Cl loop
 
+                loop[CompFactorToInt("Fl")] <- unlist(loop[CompFactorToInt("Fl")]) + 1
+                if (loop[CompFactorToInt("Fl")] > HighMoles("Fl",Fl=Fx)) {
+                  break
+                }
+                } # Fl loop
+
 
 
                 loop[CompFactorToInt("Cl37")] <- unlist(loop[CompFactorToInt("Cl37")]) + 1
@@ -385,6 +404,12 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
             break
           }
         } # Positive Odd Electron loop
+
+        loop[CompFactorToInt("NOE")] <- unlist(loop[CompFactorToInt("NOE")]) + 1
+        if (loop[CompFactorToInt("NOE")] > HighMoles("NOE", NOE=NOEx)) {
+          break
+        }
+        } # Negative Odd Electron loop
 
         if (fit) {
           loop[which(components=="Z")] <- HighMoles("Z",Z=Zx)
@@ -419,30 +444,33 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
                             E = unlist(recordsdf$E), S34 = unlist(recordsdf$S34),
                             N15 = unlist(recordsdf$N15),
                             D = unlist(recordsdf$D), Cl = unlist(recordsdf$Cl),
-                             Cl37 = unlist(recordsdf$Cl37),
+                            Fl = unlist(recordsdf$Fl), Cl37 = unlist(recordsdf$Cl37),
                             M = unlist(recordsdf$M), NH4 = unlist(recordsdf$NH4),POE = unlist(recordsdf$POE),
+                            NOE = unlist(recordsdf$NOE),
                             Z = unlist(recordsdf$Z), Neutral_mass = unlist(recordsdf$Neutral_mass),
                             CHO_mass = unlist(recordsdf$CHO_mass), CHO_Err = unlist(recordsdf$CHO_Err),
                             Ratio = unlist(recordsdf$Ratio))
-
-    records1 <- dplyr::mutate(env$recordsdf, C = C+1*Ratio, H = H+4*Ratio+N+N15+P+2*POE+Cl+Cl37, O = O-1*Ratio)
-
+#test <-records1$Exp_mass[6]
+    records1 <- dplyr::mutate(env$recordsdf, C = C+1*Ratio, H = H+4*Ratio+N+N15+P+2*POE+Cl+Cl37+Fl - 2*NOE,
+                              O = O-1*Ratio)
+    records1 <- records1[records1$C > 1 & records1$O >=0 & records1$RA >=0,]
+    records1 <- unique(records1)
 
     records1 <- dplyr::mutate(records1, O_C = O/(C+E), H_C =H/(C+E),
 
-                              Neutral_mass = Neutral_mass + POE * 2.0156500638,
+                              Neutral_mass = Neutral_mass + POE * 2.0156500638 - NOE * 2.0156500638,
 
                               theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                                Cl * EM("Cl35") +  E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
-                                D * EM("D") + M * EM("M") + NH4 * EM("NH4") +POE * EM("POE"),
+                                Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
+                                D * EM("D") + M * EM("M") + NH4 * EM("NH4") +POE * EM("POE")+NOE * EM("NOE"),
 
                               theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                                Cl * EM("Cl35") +  E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
+                                Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
                                 D * EM("D"),
 
                               C = C + E,
 
-                              DBE = C - 0.5 * (H + Cl + Cl37) + 0.5 * (N + N15 + P) + 1,
+                              DBE = C - 0.5 * (H + Cl + Cl37 + Fl) + 0.5 * (N + N15 + P) + 1,
 
                               err_ppm = ((Neutral_mass - theor_mass1) / Neutral_mass * 10^6),
 
@@ -452,26 +480,28 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
                               KM = Exp_mass * (14 / 14.01565), KMD = round(Exp_mass) - KM,
 
-                              max_LA = theor_mass1 / 13, actual_LA = ((C - E) + N + S + O + E + S34 + P + Cl +Cl37+N15) ,
+                              max_LA = theor_mass1 / 13, actual_LA = ((C - E) + N + S + O + E + S34 + P + Cl +Fl+Cl37+N15) ,
 
                               rule_13=actual_LA/max_LA,
 
-                              Senior1 = H + P + N + Cl + Cl37 + N15  ,
+                              Senior1 = H + P + N + Cl + Cl37 + N15+Fl  ,
 
                               STest = S + S34, ClTest = Cl + Cl37, NTest = N + N15, DBEO = DBE-O,
 
                               max_H = C * 2 + 2, H_test = H / max_H,
 
-                              Senior2 = Valence("P") + Valence("N") + Valence("N15") + Valence("H")  + Valence("Cl") + Valence("Cl37"),
+                              Senior2 = Valence("P") + Valence("N") + Valence("N15") + Valence("H")  +
+                                Valence("Cl") + Valence("Cl37")+Valence("Fl"),
                               Senior3Atom = C + H + O + N + S + P + N15 + E + Cl + Cl37 + S34,
-                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") + N*Valence("N") + S*Valence("S") + P*Valence("P") + S34*Valence("S34") +
+                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") + N*Valence("N") +
+                                S*Valence("S") + P*Valence("P") + S34*Valence("S34") + Fl*Valence("Fl")+
                                 N15*Valence("N15") + Cl*Valence("Cl") + Cl37*Valence("Cl37")
     )
 
 
 
 
-    records1 <- dplyr::filter(records1, C>0, H>0,O>=Omin, H >= D)
+    records1 <- dplyr::filter(records1, C>0& H>0&O>=Omin& H >= D)
     records1 <- unique(records1)
     records1 <- dplyr::filter(records1, O_C < O_Cmax & H_C <= H_Cmax & H_C > H_Cmin & O_C >= O_Cmin &
 
@@ -491,13 +521,14 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
                                 O>= P*4&
 
-                                RA > 0 &
+                                #RA >= 0 &
 
                                 Senior2 >= 2*Valence("C") &
 
                                 Senior3Val >= (2*Senior3Atom - 1)
     )
 
+    #NOEx working perfect to this point.
 
     ###Series analysis
     ##Determining Ambiguity
@@ -521,7 +552,7 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
     ##Unambiguous formulas prep
 
     Unambig <- Unambig[c("RA", "Exp_mass", "C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D",
-                         "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                         "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
     Unambig$NM <- round(Unambig$Exp_mass)
 
     Unambig$KM_CH2 <- Unambig$Exp_mass * (14/14.01565)
@@ -570,9 +601,12 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
     Ambig$z_CH2O <- round(Ambig$Exp_mass)%%30 - 30
     #Good to this point
     ###Looping series assignment
-    knowndummy <- data.frame(KMD_CH2 = -42, KMD_O = -42, KMD_CH2O = -42, KMD_H2O = -42, KMD_H2 = -42, z_CH2 = -42, z_O = -42,
-                             z_CH2O = -42, z_H2O = -42, z_H2 = -42, RA = -42, Exp_mass = -42, C = 4, H = 4, O = 0, N = 0, S = 0,
-                             S34 = 0, P = 0, N15 = 0, Cl = 0, Cl37 = 0, M = 0, NH4 = 0, Z= 0, POE = 0, D = 0, E = 0, KM_O = -42,
+    knowndummy <- data.frame(KMD_CH2 = -42, KMD_O = -42, KMD_CH2O = -42, KMD_H2O = -42, KMD_H2 = -42, z_CH2 = -42,
+                             z_O = -42,
+                             z_CH2O = -42, z_H2O = -42, z_H2 = -42, RA = -42, Exp_mass = -42, C = 4, H = 4, O = 0,
+                             N = 0, S = 0,
+                             S34 = 0, P = 0, N15 = 0, Cl = 0, Fl = 0, Cl37 = 0, M = 0, NH4 = 0, Z= 0, POE = 0,
+                             NOE = 0,D = 0, E = 0, KM_O = -42,
                              KM_CH2 = -42, KM_CH2O = -42, KM_H2O= -42, KM_H2 = -42, NM = 0)
     known <- Unambig
     known <- rbind(known, knowndummy)
@@ -585,12 +619,12 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
     DummyOut <- data.frame(KMD_CH2 = -42, KMD_O = -42, RA.x = -42,KMD_CH2O = -42,  KMD_H2O = -42, KMD_H2 = -42, z_CH2 = -42, z_O = -42,
                            z_CH2O = -42, z_H2O = -42, z_H2 = -42,  Exp_mass = -42, C = 4, H = 4, O = 0, N = 0, S = 0,
-                           S34 = 0, P = 0, N15 = 0, Cl = 0, Cl37 = 0, M = 0, NH4 = 0, Z= 0, POE = 0, D = 0, E = 0, KM_O = -42,
+                           S34 = 0, P = 0, N15 = 0, Cl = 0, Fl = 0, Cl37 = 0, M = 0, NH4 = 0, Z= 0, POE = 0, NOE = 0, D = 0, E = 0, KM_O = -42,
                            KM_CH2 = -42, KM_CH2O = -42, KM_H2O= -42, KM_H2 = -42, NM = 0, RA.y = -42, base_mass = -42,
                            Type = "X", form = "E")
 
     pb2 <- txtProgressBar(min = 0, max = nLoop, style = 3)
-
+#Seems good to this point
     for(i in 1:nLoop){
 
       known <- Unambig
@@ -602,7 +636,7 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
       repeat{
         x = x+1
         knownCH2 <- known[c("RA", "Exp_mass", "KMD_CH2", "z_CH2", "C", "H", "O", "N", "S", "P", "E",
-                            "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                            "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
         names(knownCH2)[2] <- "base_mass"
         Step1 <- merge(unknown, knownCH2, by.x = c("KMD_CH2", "z_CH2"), by.y = c("KMD_CH2", "z_CH2"))
         Step1$CH2_num <- round(((Step1$Exp_mass - Step1$base_mass))/14.01565)
@@ -610,34 +644,37 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
         Step1$H <- Step1$H + 2 * Step1$CH2_num
         Step1$Type <- "CH2"
         Step1$form <- paste(Step1$C, Step1$H, Step1$O, Step1$N, Step1$S, Step1$P, Step1$E, Step1$S34,
-                            Step1$N15, Step1$D, Step1$Cl37, Step1$Cl37, Step1$M, Step1$NH4, Step1$POE, sep = "_")
-        Step1 <- Step1[-c(37)]
+                            Step1$N15, Step1$D, Step1$Cl, Step1$Fl, Step1$Cl37, Step1$M, Step1$NH4,
+                            Step1$POE, Step1$NOE, sep = "_")
+        Step1 <- Step1[-c(39)]
 
 
         knownO <- known[c("RA", "Exp_mass", "KMD_O", "z_O", "C", "H", "O", "N", "S", "P", "E",
-                          "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                          "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
         names(knownO)[2] <- "base_mass"
         Step2 <- merge(unknown, knownO, by.x = c("KMD_O", "z_O"), by.y = c("KMD_O", "z_O"))
         Step2$O_num <- round(((Step2$Exp_mass - Step2$base_mass))/15.9949146223)
         Step2$O <- Step2$O + Step2$O_num
         Step2$Type <- "O"
         Step2$form <- paste(Step2$C, Step2$H, Step2$O, Step2$N, Step2$S, Step2$P, Step2$E, Step2$S34,
-                            Step2$N15, Step2$D, Step2$Cl37, Step2$Cl37, Step2$M, Step2$NH4, Step2$POE, sep = "_")
-        Step2 <- Step2[-c(37)]
+                            Step2$N15, Step2$D, Step2$Cl, Step2$Fl, Step2$Cl37, Step2$M, Step2$NH4,
+                            Step2$POE, Step2$NOE, sep = "_")
+        Step2 <- Step2[-c(39)]
 
         knownH2 <- known[c("RA", "Exp_mass", "KMD_H2", "z_H2", "C", "H", "O", "N", "S", "P", "E",
-                           "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                           "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
         names(knownH2)[2] <- "base_mass"
         Step3 <- merge(unknown, knownH2, by.x = c("KMD_H2", "z_H2"), by.y = c("KMD_H2", "z_H2"))
         Step3$H2_num <- round(((Step3$Exp_mass - Step3$base_mass))/2.01565)
         Step3$H <- Step3$H + 2*Step3$H2_num
         Step3$Type <- "H2"
         Step3$form <- paste(Step3$C, Step3$H, Step3$O, Step3$N, Step3$S, Step3$P, Step3$E, Step3$S34,
-                            Step3$N15, Step3$D, Step3$Cl37, Step3$Cl37, Step3$M, Step3$NH4, Step3$POE, sep = "_")
-        Step3 <- Step3[-c(37)]
+                            Step3$N15, Step3$D, Step3$Cl, Step3$Fl, Step3$Cl37, Step3$M, Step3$NH4,
+                            Step3$POE, Step3$NOE, sep = "_")
+        Step3 <- Step3[-c(39)]
 
         knownH2O <- known[c("RA", "Exp_mass", "KMD_H2O", "z_H2O", "C", "H", "O", "N", "S", "P", "E",
-                            "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                            "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
         names(knownH2O)[2] <- "base_mass"
         Step4 <- merge(unknown, knownH2O, by.x = c("KMD_H2O", "z_H2O"), by.y = c("KMD_H2O", "z_H2O"))
         Step4$H2O_num <- round(((Step4$Exp_mass - Step4$base_mass))/18.01056468)
@@ -645,11 +682,12 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
         Step4$O <- Step4$O + Step4$H2O_num
         Step4$Type <- "H2O"
         Step4$form <- paste(Step4$C, Step4$H, Step4$O, Step4$N, Step4$S, Step4$P, Step4$E, Step4$S34,
-                            Step4$N15, Step4$D, Step4$Cl37, Step4$Cl37, Step4$M, Step4$NH4, Step4$POE, sep = "_")
-        Step4 <- Step4[-c(37)]
+                            Step4$N15, Step4$D, Step4$Cl, Step4$Fl, Step4$Cl37, Step4$M, Step4$NH4,
+                            Step4$POE, Step4$NOE, sep = "_")
+        Step4 <- Step4[-c(39)]
 
         knownCH2O <- known[c("RA", "Exp_mass", "KMD_CH2O", "z_CH2O", "C", "H", "O", "N", "S", "P", "E",
-                             "S34", "N15", "D", "Cl", "Cl37", "M", "NH4", "POE", "Z")]
+                             "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
         names(knownCH2O)[2] <- "base_mass"
         Step5 <- merge(unknown, knownCH2O, by.x = c("KMD_CH2O", "z_CH2O"), by.y = c("KMD_CH2O", "z_CH2O"))
         Step5$CH2O_num <- round(((Step5$Exp_mass - Step5$base_mass))/30.01056468)
@@ -658,8 +696,9 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
         Step5$C <- Step5$C + Step5$CH2O_num
         Step5$Type <- "CH2O"
         Step5$form <- paste(Step5$C, Step5$H, Step5$O, Step5$N, Step5$S, Step5$P, Step5$E, Step5$S34,
-                            Step5$N15, Step5$D, Step5$Cl37, Step5$Cl37, Step5$M, Step5$NH4, Step5$POE, sep = "_")
-        Step5 <- Step5[-c(37)]
+                            Step5$N15, Step5$D, Step5$Cl, Step5$Fl, Step5$Cl37, Step5$M, Step5$NH4,
+                            Step5$POE, Step5$NOE, sep = "_")
+        Step5 <- Step5[-c(39)]
 
         Out <- rbind(Step1, Step2, Step3, Step4, Step5)
         Out <- Out[(Out$C > 2 & Out$H > 4 & Out$O >= 0),]
@@ -699,7 +738,7 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
       Unambig
     }
 
-    records1 <- Unambig[c(1:18)]
+    records1 <- Unambig[c(1:20)]
 
     records1$mode <- ionMode
 
@@ -714,25 +753,30 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
      df3$Neutral_mass <- df3$Exp_mass + 1.00727645216
 
      records1 <- rbind(df1, df2, df3)
-     records1 <- records1[-c(19)]
+     records1 <- records1[-c(21)]
 
-
+    #NOEx seems to be good to this point.
     ###Standard QA steps, second round
     records1 <- dplyr::mutate(records1, O_C = O/(C+E), H_C =H/(C+E),
 
-                              Neutral_mass = Neutral_mass + POE * 2.0156500638,
+                              Neutral_mass = Neutral_mass + POE * (2.0156500638/2)- NOE * (2.0156500638/2),
 
-                              theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                                Cl * EM("Cl35") +  E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
-                                D * EM("D") + M * EM("M") + NH4 * EM("NH4") +POE * EM("POE"),
 
-                              theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                                Cl * EM("Cl35") +  E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
+                              theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
+                                S * EM("S") + P * EM("P31") +
+                                Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E") + S34 * EM("S34") +
+                                Cl37 * EM("Cl37m") + N15 * EM("N15H") +
+                                D * EM("D") + M * EM("M") + NH4 * EM("NH4") +POE * EM("POE") + NOE*EM("NOE"),
+
+                              theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
+                                S * EM("S") + P * EM("P31") + Fl * EM("Fl19") +
+                                Cl * EM("Cl35") +  E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") +
+                                N15 * EM("N15H") +
                                 D * EM("D"),
 
                               C = C + E,
 
-                              DBE = C - 0.5 * (H + Cl + Cl37) + 0.5 * (N +N15+ P) + 1,
+                              DBE = C - 0.5 * (H + Cl + Cl37 +Fl) + 0.5 * (N +N15+ P) + 1,
 
                               err_ppm = ((Neutral_mass - theor_mass) / Neutral_mass * 10^6),
 
@@ -742,23 +786,27 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
                               KM = Exp_mass * (14 / 14.01565), KMD = round(Exp_mass) - KM,
 
-                              max_LA = theor_mass1 / 13, actual_LA = ((C - E) + N + S + O + E + S34 + P + Cl +Cl37+N15) ,
+                              max_LA = theor_mass1 / 13, actual_LA = ((C - E) + N + S + Fl + O + E + S34 + P + Cl +Cl37+N15) ,
 
                               rule_13=actual_LA/max_LA,
 
-                              Senior1 = H + P + N + Cl + Cl37 + N15  ,
+                              Senior1 = H + P + N + Cl + Fl + Cl37 + N15  ,
 
                               STest = S + S34, ClTest = Cl + Cl37, NTest = N + N15, DBEO = DBE-O,
 
                               max_H = C * 2 + 2, H_test = H / max_H,
 
-                              Senior2 = Valence("P") + Valence("N") + Valence("N15") + Valence("H")  + Valence("Cl") + Valence("Cl37"),
-                              Senior3Atom = C + H + O + N + S + P + N15 + E + Cl + Cl37 + S34,
-                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") + N*Valence("N") + S*Valence("S") + P*Valence("P") + S34*Valence("S34") +
+                              Senior2 = Valence("P") + Valence("N") + Valence("N15") + Valence("H")  +
+                                Valence("Cl") + Valence("Cl37") + Valence("Fl"),
+                              Senior3Atom = C + H + O + N + S + P + N15 + E + Cl + Fl + Cl37 + S34,
+                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") + N*Valence("N")
+                              + S*Valence("S") + P*Valence("P") + S34*Valence("S34") + Fl*Valence("Fl") +
                                 N15*Valence("N15") + Cl*Valence("Cl") + Cl37*Valence("Cl37")
     )
 
 
+
+    #recordssave <- records1
 
     records1 <- dplyr::filter(records1, C>0, H>0,O>=Omin, H >= D)
     records1 <- unique(records1)
@@ -806,11 +854,15 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
                     Pform = ifelse(P == 0 , "",
                                    ifelse(P == 1 , "P", paste("P",O, sep = ""))),
                     Clform = ifelse(ClTest == 0 , "",
-                                    ifelse(ClTest == 1 , "Cl", paste("Cl",ClTest, sep = ""))))
+                                    ifelse(ClTest == 1 , "Cl", paste("Cl",ClTest, sep = ""))),
+                    Flform = ifelse(Fl == 0 , "",
+                                    ifelse(Fl == 1 , "F", paste("F",Fl, sep = ""))))
 
-    records1 <- tidyr::unite(records1, class, Nform, Oform, Sform, Pform, Clform, sep = "", remove = FALSE)
+    records1 <- tidyr::unite(records1, class, Nform, Oform, Sform, Pform, Clform, Flform,
+                             sep = "", remove = FALSE)
 
-    records1 <- tidyr::unite(records1, formula, Cform, Hform, Nform, Oform, Sform, Pform, Clform, sep = "")
+    records1 <- tidyr::unite(records1, formula, Cform, Hform, Nform, Oform, Sform, Pform, Clform,
+                             Flform, sep = "")
 
     records1 <-
       dplyr::mutate(records1, Cform = ifelse(C == 0 , "", "C"),
@@ -822,12 +874,14 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
                     Sform = ifelse(STest == 0 , "","S"),
                     Pform = ifelse(P == 0 , "", "P"),
-                    Clform = ifelse(ClTest == 0 , "", "Cl"))
+                    Clform = ifelse(ClTest == 0 , "", "Cl"),
+                    Flform = ifelse(Fl == 0 , "", "F"))
 
-    records1 <- tidyr::unite(records1, group, Cform, Hform, Nform, Oform, Sform, Pform, Clform, sep = "")
+    records1 <- tidyr::unite(records1, group, Cform, Hform, Nform, Oform, Sform, Pform,
+                             Clform, Flform, sep = "")
 
     ###Supplemental Specialized QA Steps
-    records1<-dplyr::mutate(records1, HA = NTest + STest + P + ClTest + E)
+    records1<-dplyr::mutate(records1, HA = NTest + STest + P + ClTest + E + Fl)
 
     records1<-dplyr::group_by(records1, Exp_mass)
 
@@ -864,11 +918,14 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
     df2$theor_mass1 <- df2$theor_mass1 - proton
 
     records1 <- rbind(df1, df2)
-    records1 <- records1[-c(42)]
+    records1 <- records1[-c(44)]  #removes mode
 
-    records1 <- records1[c(1,2,39:41,3:19,22,25:29, 24, 20:21,36, 30:32,37, 38)]
+    records1 <- records1[c(1,2,41:43,3:21,24,27:31, 26, 22:23,38, 32:34,39, 40)]
+
+    #records1 <- records1[c(1,2,38:40,3:21,24, 27:31, 26, 22:23,35, 32:34,36,37)]
 
     #recordssave <- records1
+    #records1 <- recordssave
     ######################################################################
     ##Aligning Isotope masses back into the mass spectrum
 
@@ -901,11 +958,11 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
 
     Ambigfinal <- dplyr::left_join(records2, Ambigcheck, by = "Exp_mass")
     Unambig <- Ambigfinal[is.na(Ambigfinal$Tag),]
-    Unambig <- Unambig[-c(40,41)]
+    Unambig <- Unambig[-c(42,43)]
     Ambigfinal <- Ambigfinal[!is.na(Ambigfinal$Tag),]
-    Ambigfinal <- Ambigfinal[-41]
+    Ambigfinal <- Ambigfinal[-43]
     Ambigout <- rbind(Ambig, Ambigfinal) #This one is fine
-    Ambigout <- Ambigout[-40]
+    Ambigout <- Ambigout[-42]
     Ambigout2 <- data.frame(Exp_mass = 1)
     Ambigout <- dplyr::bind_rows(Ambigout, Ambigout2)
     Ambigout <- unique(Ambigout)
@@ -941,12 +998,16 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
       Ambig <- Ambigout3[Ambigout3$dups == TRUE | Ambigout3$dups2 == TRUE,]
       Ambig <- unique(Ambig)
 
-      Ambigout <- Ambig[-c(3,42:47)]
-      Ambigout <- Ambigout[c(3:27,1,28:32, 2, 33:40)]
-      Unambigout <- Unambig2[-c(3,42:47)]
-      Unambigout <- Unambigout[c(3:27,1,28:32, 2, 33:40)]
+      Ambigout <- Ambig[-c(3,44:49)]
+      Ambigout <- Ambigout[c(3:29,1,30:34, 2, 35:42)]
+      Unambigout <- Unambig2[-c(3,44:49)]
+      Unambigout <- Unambigout[c(3:29,1,30:34, 2, 35:42)]
       Unambig <- rbind(Unambig, Unambigout)
     }
+
+    #Unambig <- Unambig[!is.na(Unambig$N15),]
+    Unambig$theor_mass1 <- Unambig$theor_mass1 - Unambig$POE * 2.0156500638 +
+      Unambig$NOE * 2.0156500638 + Unambig$NOE * electron - Unambig$POE * electron
     # #Everything is good to this point
 
     ###########
@@ -1012,9 +1073,9 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
                      plot.title = ggplot2::element_text(size = 16, face = "bold"))
 
     names(Unambig)[1] <- "Abundance"
-    names(Unambig)[23] <- "theor_mass"
+    names(Unambig)[25] <- "theor_mass"
     names(Ambigout)[1] <- "Abundance"
-    names(Ambigout)[23] <- "theor_mass"
+    names(Ambigout)[25] <- "theor_mass"
     Unambig <- Unambig[!is.na(Unambig$C),]
     names(unassigned)[1] <- "Abundance"
     unassigned <- unassigned[unassigned$Abundance > SN,]
@@ -1027,6 +1088,8 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
     output
 
 }
+
+
 
 
 
