@@ -1,0 +1,6 @@
+Package Updates
+
+10/25/2018
+- POEx option is now working
+- NOEx (negative odd electron assignment) has now been implemented
+- Fluorine assignment now implemented (Flx)
