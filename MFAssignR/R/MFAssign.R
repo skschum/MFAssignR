@@ -1079,6 +1079,7 @@ MFAssign <- function(peaks, isopeaks = "None", ionMode, lowMW=100,highMW=1000, P
     Unambig <- Unambig[!is.na(Unambig$C),]
     names(unassigned)[1] <- "Abundance"
     unassigned <- unassigned[unassigned$Abundance > SN,]
+    unassigned <- unassigned[c(2,1)]
     .rs.restartR()
 
     ##Final Output list
