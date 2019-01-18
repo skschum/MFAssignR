@@ -4,3 +4,15 @@ Package Updates
 - POEx option is now working
 - NOEx (negative odd electron assignment) has now been implemented
 - Fluorine assignment now implemented (Flx)
+
+01/18/2019
+- See documentation for more in depth description of the changes
+- Addition of more versions of MFAssign functions (MFAssignAll_MSMS, MFAssign_RMD, MFAssignCHO_RMD)
+- Added new noise estimation function "KMDNoise" and renamed original to "HistNoise"
+- Included 34S and 2 13C as potential isotopic masses in IsoFiltR
+- Improved mass recalibration by adding a segmented "walking" component
+- Changed name of MFRecalcheck to "Recal"
+- Changed name of MFRecalList to "RecalList"
+- Added second mass recalibration function "Recal_2", which is slightly different than "Recal"
+- Generally enhanced performance and speed of the functions in the package
+- Improved molecular formula assignment by decreasing incorrect sulfur assignments
