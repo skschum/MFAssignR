@@ -1,4 +1,6 @@
-# Package Overview and References
+# MFAssignR
+
+## Package Overview and References
 
 The MFAssignR package was designed for multi-element molecular formula (MF) assignment of ultrahigh resolution mass spectrometry measurements. A number of tools for internal mass recalibration, MF assignment, signal-to-noise evaluation, and unambiguous MF assignments are provided. This package contains MFAssign(), MFAssign_RMD(), MFAssignCHO(), MFAssignCHO_RMD(), MFAssignAll(), MFAssignAll_MSMS(), SNplot(), HistNoise(), KMDNoise(), RecalList(), Recal(), and IsoFiltR() described in the sections below. Note, the functions with “RMD” were designed to be run within an R Markdown file and are otherwise identical to the corresponding non-”RMD” versions. To learn more, please see the section titled “Semi-Automated MFAssignR Functions”.  User caution with the function parameter settings and output evaluation is required; thus, several function outputs are provided to assist the user with these evaluations.
 
