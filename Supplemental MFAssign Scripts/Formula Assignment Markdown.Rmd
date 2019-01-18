@@ -1,0 +1,142 @@
+---
+title: "Molecular Formula Assignment with MFAssignR"
+author: "Simeon Schum"
+date: "December 7, 2018"
+output: html_document
+params: 
+  data: x
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(MFAssignR)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+file_name=substr(params$data,1,nchar(params$data)-7)
+ 
+print(file_name)
+
+Data <- tbl_df(read.csv(paste0(file_name,"_MS.csv"), stringsAsFactors = FALSE)) #Loads the data
+
+SNRatio <- 6
+```
+
+
+###Signal To Noise Assessment
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+#Currently the script is just taking the KMD noise everytime because it is more consistently correct.
+
+Noise <-KMDNoise(Data)
+
+
+Noise[["KMD"]]
+KMDN <-Noise[["Noise"]]
+KMDN
+
+
+SNplot(Data, cut = SNRatio * KMDN, mass = 419.1, window.x = 0.2, window.y = 10) 
+
+```
+
+###Isotope Identification
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#I am using 6 times the noise to set the cut off at this time, you can change it however you would like
+
+Isotopes <- IsoFiltR(Data, SN = SNRatio * KMDN)
+
+Mono <- Isotopes[["Mono"]]
+Iso <- Isotopes[["Iso"]]
+
+```
+
+###CHO Assignment
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
+#Currently this is a positive mode assignment markdown, with no odd electrons, this can be changed as desired.
+
+Assign <- MFAssignCHO_RMD(Mono, Iso, ionMode = "pos", lowMW =50, highMW = 1000, Mx = 1, ppm_err = 3, H_Cmin = 0.3,
+                      HetCut = "Off", NMScut = "On", SN = SNRatio*KMDN)   #Standard parameters for negative mode
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+Unambig1 <- Assign[["Unambig"]]
+Ambig1 <- Assign[["Ambig"]]
+Unassigned <- Assign[["None"]]
+Plot1 <- Assign[["MSAssign"]]
+Plot2 <- Assign[["Error"]]
+Plot3 <- Assign[["MSgroups"]]
+Plot4 <- Assign[["VK"]]
+Plot1
+Plot2
+Plot3
+Plot4
+
+#Doing this just clears up some of the memory to keep the markdown running as fast as possible
+rm(Plot1)
+rm(Plot2)
+rm(Plot3)
+rm(Plot4)
+rm(Unassigned)
+rm(Ambig1)
+gc()
+```
+
+###Recalibration
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#This is the section that requires the most user input. You should run through a representative sample first so that you know what recalibrants you are planning on using, and then set those recalibrants in the function
+
+#check <- MFRecalList(Unambig1)
+
+##################################
+#Qualitative check of recalibrant series and mass recalibration.
+
+Test <- Recal(Unambig1, peaks = Mono, isopeaks = Iso, mzRange = 50, mode = "pos", SN = SNRatio*KMDN, series1 = "O3_Na_3", series2 = "O8_Na_6", series3 = "O12_Na_8", series4 = "O10_Na_5", series5 = "O14_Na_9", series6 = "O10_Na_7", series7 = "O7_Na_4", series8 = "O3_Na_1", bin = 10, obs = 2) #Good parameters for the
+
+
+Plot <- Test[["Plot"]]
+Plot      #This plot is slow to generate
+Mono2 <- Test[["Mono"]]
+Iso2 <- Test[["Iso"]]
+List <- Test[["RecalList"]]
+```
+
+###Full Assignment
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
+#Be sure this is updated based on what you want to be assigning
+
+Assign <- MFAssign_RMD(Mono2, Iso2, ionMode = "pos", lowMW =50, highMW = 1000, Mx = 1, Nx = 5, ppm_err = 3, H_Cmin = 0.3,
+                      HetCut = "Off", NMScut = "On", SN = SNRatio*KMDN)   #Standard parameters for negative mode
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+Unambig1 <- Assign[["Unambig"]]
+Ambig1 <- Assign[["Ambig"]]
+Unassigned <- Assign[["None"]]
+Plot1 <- Assign[["MSAssign"]]
+Plot2 <- Assign[["Error"]]
+Plot3 <- Assign[["MSgroups"]]
+Plot4 <- Assign[["VK"]]
+Plot1
+Plot2
+Plot3
+Plot4
+
+write.csv(Unambig1, paste0("Assigned Formulas/", file_name, "_UMF.csv"), row.names=FALSE, na="")
+write.csv(Ambig1, paste0("Assigned Formulas/", file_name, "_AMF.csv"), row.names=FALSE, na="")
+write.csv(List, paste0("Assigned Formulas/", file_name, "_RC.csv"), row.names=FALSE, na="")
+write.csv(Unassigned, paste0("Assigned Formulas/", file_name, "_UNA.csv"), row.names=FALSE, na="")
+
+rm(Plot1)
+rm(Plot2)
+rm(Plot3)
+rm(Plot4)
+rm(Unassigned)
+rm(Ambig1)
+gc()
+```
