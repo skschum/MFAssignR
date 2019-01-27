@@ -59,7 +59,7 @@ Iso <- Isotopes[["Iso"]]
 #Currently this is a positive mode assignment markdown, with no odd electrons, this can be changed as desired.
 
 Assign <- MFAssignCHO_RMD(Mono, Iso, ionMode = "pos", lowMW =50, highMW = 1000, Mx = 1, ppm_err = 3, H_Cmin = 0.3,
-                      HetCut = "Off", NMScut = "On", SN = SNRatio*KMDN)   #Standard parameters for positive mode
+                      HetCut = "off", NMScut = "on", SN = SNRatio*KMDN)   #Standard parameters for positive mode
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
@@ -111,7 +111,7 @@ List <- Test[["RecalList"]]
 #Be sure this is updated based on what you want to be assigning
 
 Assign <- MFAssign_RMD(Mono2, Iso2, ionMode = "pos", lowMW =50, highMW = 1000, Mx = 1, Nx = 5, ppm_err = 3, H_Cmin = 0.3,
-                      HetCut = "Off", NMScut = "On", SN = SNRatio*KMDN)   #Relatively standard parameters for positive mode
+                      HetCut = "off", NMScut = "on", SN = SNRatio*KMDN)   #Relatively standard parameters for positive mode
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
