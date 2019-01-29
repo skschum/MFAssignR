@@ -155,7 +155,7 @@ IsoFiltR <- function(peaks, SN = 0, Diffrat = 0.1) {
   names(Data)[1] <- "Exp_mass"
   names(Data)[2] <- "Exp_mass1"
   Data$mdiff <- Data$Exp_mass - Data$Exp_mass1
-  Data <- Data[Data$mdiff < 1.0015 & Data$mdiff > -1.005, ]
+  Data <- Data[Data$mdiff < -1.0015 & Data$mdiff > -1.005, ]
   Data$C13_err <- abs(((Data$Exp_mass + 1.0033548380)-Data$Exp_mass1)/Data$Exp_mass1 * 10^6)
   Data <- Data[Data$C13_err <= 5,]
   Data <- Data[c(1:3)]
