@@ -1,6 +1,6 @@
 Package: MFAssignR
 Type: Package
-Title: Molecular Formula Assignment using CHOFIT Algorithm
+Title: An R package for the Data Preparation and Molecular Formula Assignment
 Version: 0.0.3
 Author: Simeon Schum, Lynn Mazzoleni, Laura Brown
 Maintainer: Simeon Schum, <skschum@mtu.edu>
