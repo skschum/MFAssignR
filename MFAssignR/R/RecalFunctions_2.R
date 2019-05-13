@@ -53,17 +53,11 @@
 #'  recalibrated "Iso" data frame, and the recalibrants list (RecalOut)
 #'
 #' @examples
-#' Recal(df = Data, peaks = Mono, isopeaks = Iso, mode = "neg", SN = 500, series1 = "O4_H_2", series2 = "O4_H_8", series3 = "O6_H_8")
+#' Recal_2(df = Data, peaks = Mono, isopeaks = Iso, mode = "neg", SN = 500, series1 = "O4_H_2", series2 = "O4_H_8", series3 = "O6_H_8")
 #'
-#' Recal(df = Data, peaks = Mono, isopeaks = Iso, mode = "pos", SN = 300, series1 = "O4_Na_2", series2 = "O4_H_8", series3 = "O6_Na_8")
+#' Recal_2(df = Data, peaks = Mono, isopeaks = Iso, mode = "pos", SN = 300, series1 = "O4_Na_2", series2 = "O4_H_8", series3 = "O6_Na_8")
 #' @export
 
-#peaks <- Mono1
-#isopeaks <- Iso1
-#df <- Unambig6
-#mode <- "pos"
-#SN <- 10000
-#series1 <- "O6_H_3"
 
 Recal_2 <- function( df, peaks, isopeaks = "none",mode, SN = 0, mzRange = 50, series1=NA, series2=NA, series3=NA, series4=NA, series5=NA,
                           series6=NA, series7=NA, series8=NA, series9=NA, series10=NA, min = 100, max = 1000,

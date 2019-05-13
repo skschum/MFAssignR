@@ -133,8 +133,9 @@
 #' MFAssign(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000, Nx = 3, Sx = 1)
 #' @export
 
-
-MFAssign_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000, POEx = 0, NOEx = 0, Nx=0,Sx=0, Px=0, S34x=0,
+#peaks <- Mono
+#SN <- 100
+MFAssign <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000, POEx = 0, NOEx = 0, Nx=0,Sx=0, Px=0, S34x=0,
                                   N15x=0, Dx=0,Ex=0, Clx=0, Cl37x=0, Fx = 0, Mx=0, NH4x=0, Zx=1, Sval = 2, Nval = 3, S34val = 2,
                                   N15val = 3, Pval = 5, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
                                   O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13, Omin = 0, HetCut = "off",
@@ -173,7 +174,7 @@ MFAssign_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=100
   names(peaks)[2] <- "mass"
   names(peaks)[1] <- "RA"
 
-  isopeaks2 <- if(isopeaks != "none") isopeaks else data.frame(x=0,y=0,Tag = 0)
+  isopeaks2 <- if(isopeaks != "none") isopeaks else data.frame(x=10^9,y=0,Tag = 0)
 
   isopeaks2 <- isopeaks2[c(2,1,3)]
 
@@ -1248,7 +1249,7 @@ MFAssign_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=100
 
     ###############
     Allmasses <- peaksAll[!is.na(peaksAll$mass),]
-    nloop1 <- ceiling((max(Allmasses$mass + 1)-DeNovo)/200)
+    nloop1 <- ceiling((max(Allmasses$mass)-DeNovo)/200)
     #Needs to be saved outside loop so it stays intact
     Unambigsave <- recordsx
     Ambigsave <- Iso_nomatch
@@ -1876,7 +1877,7 @@ MFAssign_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=100
 
 
 
-    #.rs.restartR()
+    .rs.restartR()
 
     ##Final Output list
     output <- list(Unambig = Unambig, Ambig = Ambigout, None = unassigned, MSAssign = MZ,
