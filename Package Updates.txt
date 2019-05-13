@@ -16,3 +16,10 @@ Package Updates
 - Added second mass recalibration function "Recal_2", which is slightly different than "Recal"
 - Generally enhanced performance and speed of the functions in the package
 - Improved molecular formula assignment by decreasing incorrect sulfur assignments
+
+05/13/2019
+- Made the sulfur isotope check optional via the "SulfCheck" parameter
+- Removed MFAssignAll() and MFAssignAll_MSMS() 
+- Added the functionality of those functions to MFAssign and MFAssignCHO() with the parameters "Ambig" and "MSMS" respectively
+- Added RecalX() and Recal_2X() as additional recalibration functions. See documentation for more information
+- General improvements to flexibility and transparency of moleular formula assignment.
