@@ -12,6 +12,7 @@ devtools::install("MFAssignR")
 library(MFAssignR)
 setwd("Your data directory")
 Data <- read.csv("Your data.csv")
+Data <- Raw_Neg_ML  #Just to use the built in data set as an example
 
 #########################
 #Signal-to-noise estimation and check
@@ -32,7 +33,7 @@ Iso <- Isotope[["Iso"]]
 #CHO formula pre-assign
 
 Assign <- MFAssignCHO(Mono, Iso, ionMode = "neg", lowMW =50, highMW = 1000, ppm_err = 3, H_Cmin = 0.3,
-                      HetCut = "off", NMScut = "on", SN = 1800)   #Standard parameters for negative mode
+                      HetCut = "off", NMScut = "on", SN = 6*KMDN)   #Standard parameters for negative mode
 
 Unambig1 <- Assign[["Unambig"]]
 Ambig1 <- Assign[["Ambig"]]
@@ -53,7 +54,7 @@ check <- RecalList(Unambig1)
 ##################################
 #Qualitative check of recalibrant series and mass recalibration.
 
-Test <- Recal(df = Unambig1,peaks = Mono, isopeaks = Iso, mode = "neg", SN = 1800, mzRange = 50, series1 = "O8_H_9",
+Test <- Recal(df = Unambig1,peaks = Mono, isopeaks = Iso, mode = "neg", SN = 6*KMDN, mzRange = 50, series1 = "O8_H_9",
               series2 = "O6_H_3", series3 = "O4_H_2", series4 = "O13_H_13", series5 = "O15_H_16",bin = 10, obs = 2)
 
 Plot <- Test[["Plot"]]
@@ -68,7 +69,7 @@ List <- Test[["RecalList"]]
 #Parameters for both positive and negative mode formula assignment. This uses the formula extension version
 
 Assign <- MFAssign(Mono2, Iso2, ionMode = "neg", lowMW =50, highMW = 1000,  Nx = 3, Sx = 1,  ppm_err = 3, H_Cmin = 0.3,
-                   HetCut = "off", DeNovo = 400, NMScut = "on", SN = 1800)
+                   HetCut = "off", DeNovo = 400, NMScut = "on", SN = 6*KMDN)
 
 
 Unambig2 <- Assign[["Unambig"]]
@@ -86,21 +87,3 @@ VK
 
 
 #############################################
-#Final formula assignment
-#Parameters for both positive and negative mode formula assignment. This uses the older version for isolated
-#assignment
-
-Assign <- MFAssignAll(Mono2, Iso2, ionMode = "neg", lowMW =50, highMW = 1000,  Nx = 3, Sx = 1,  ppm_err = 3, H_Cmin = 0.3,
-                      HetCut = "off", NMScut = "on", SN = 1800)
-
-Unambig3 <- Assign[["Unambig"]]
-Ambig3 <- Assign[["Ambig"]]
-Unassigned3 <- Assign[["None"]]
-MSAssign <- Assign[["MSAssign"]]
-Error <- Assign[["Error"]]
-MSgroups <- Assign[["MSgroups"]]
-VK <- Assign[["VK"]]
-MSAssign
-Error
-MSgroups
-VK
