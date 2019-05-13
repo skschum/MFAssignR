@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0100)file:///C:/Users/Simeon/AppData/Local/Temp/RtmpqAm71f/preview-8249c236ac.dir/MFAssignR_Vignette.html -->
+<!-- saved from url=(0101)file:///C:/Users/Simeon/AppData/Local/Temp/RtmpqAm71f/preview-82435a527aa.dir/MFAssignR_Vignette.html -->
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 
@@ -811,8 +811,8 @@ X^
 <span class="identifier">Recal_Mono</span> <span class="operator">&lt;-</span> <span class="identifier">Recalcheck</span><span class="paren">[</span><span class="paren">[</span><span class="string">"Mono"</span><span class="paren">]</span><span class="paren">]</span>
 <span class="identifier">Recal_Iso</span> <span class="operator">&lt;-</span> <span class="identifier">Recalcheck</span><span class="paren">[</span><span class="paren">[</span><span class="string">"Iso"</span><span class="paren">]</span><span class="paren">]</span>
 <span class="identifier">List</span> <span class="operator">&lt;-</span> <span class="identifier">Recalcheck</span><span class="paren">[</span><span class="paren">[</span><span class="string">"RecalList"</span><span class="paren">]</span><span class="paren">]</span></code></pre>
-<div id="recal-recal_2-input" class="section level4">
-<h4>Recal(), Recal_2() input</h4>
+<div id="recal-recal_2-recalx-and-recal_2x-input" class="section level4">
+<h4>Recal(), Recal_2(), RecalX(), and Recal_2X() input</h4>
 <ul>
 <li><p>df - the input data frame in the format of the output from MFAssign() or MFAssignCHO().</p></li>
 <li><p>peaks - the input data frame of two columns with measured ion mass in the first column and measured ion abundance in the second column; using our recommended sequence, this is the “Mono” output from IsoFiltR().</p></li>
@@ -828,8 +828,8 @@ X^
 <li><p>num - sets the number of peaks on either side of defined recalibrant to choose as additional recalibrants. Default is 5. (RecalX() and Recal_2X() only)</p></li>
 </ul>
 </div>
-<div id="recal-recal_2-output" class="section level4">
-<h4>Recal(), Recal_2() output</h4>
+<div id="recal-recal_2-recalx-and-recal_2x-output" class="section level4">
+<h4>Recal(), Recal_2(), RecalX(), and Recal_2X() output</h4>
 <ul>
 <li><p>Plot - mass spectrum with recalibrant series highlighted in blue with the rest of the mass spectrum in gray.</p></li>
 <li><p>Mono - a data frame of the recalibrated monoisotopic ion masses and their abundance, formatted for input to MFAssign().</p></li>
