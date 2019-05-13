@@ -478,7 +478,7 @@ List <- Recalcheck[["RecalList"]]
  
 ```
  
-####Recal(), Recal_2() input
+####Recal(), Recal_2(), RecalX(), and Recal_2X() input
 * df - the input data frame in the format of the output from MFAssign() or MFAssignCHO(). 
  
 * peaks - the input data frame of two columns with measured ion mass in the first column and measured ion abundance in the second column; using our recommended sequence, this is the “Mono” output from IsoFiltR().
@@ -504,7 +504,7 @@ List <- Recalcheck[["RecalList"]]
 * num - sets the number of peaks on either side of defined recalibrant to choose
 as additional recalibrants. Default is 5. (RecalX() and Recal_2X() only)
  
-####Recal(), Recal_2() output
+####Recal(), Recal_2(), RecalX(), and Recal_2X() output
 * Plot - mass spectrum with recalibrant series highlighted in blue with the rest of the mass spectrum in gray.
  
 * Mono - a data frame of the recalibrated monoisotopic ion masses and their abundance, formatted for input to MFAssign().
