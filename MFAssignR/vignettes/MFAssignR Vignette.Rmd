@@ -516,7 +516,7 @@ as additional recalibrants. Default is 5. (RecalX() and Recal_2X() only)
 
 ##Final Molecular Formula (MF) Assignment
 ###MFAssign()
-MFAssign() is the function typically used for the final MF assignment with additional heteroatoms (e.g., N and S). The general parameters and method of MF assignment are the same as MFAssignCHO(), the major difference is that multiple heteroatoms and isotopes can be included. However, an increasing number of chemically reasonable MF are possible with an increasing number of possible elements and increasing molecular weight. For this reason this function uses a multi-path formula extension approach to reduce the number of ambiguous MF assignments. Thus, the final MF list contains unambiguous MF that may have been selected based on formula extensions that are expected in environmental complex mixtures and ambiguous MF. An additional consequence of this increased complexity is that the default DeNovo cut is lowered to 500 from 1000 in order to limit incorrect assignments. Some unassigned masses are also expected to remain; these could be passed through MFAssignAll(). 
+MFAssign() is the function typically used for the final MF assignment with additional heteroatoms (e.g., N and S). The general parameters and method of MF assignment are the same as MFAssignCHO(), the major difference is that multiple heteroatoms and isotopes can be included. However, an increasing number of chemically reasonable MF are possible with an increasing number of possible elements and increasing molecular weight. For this reason this function uses a multi-path formula extension approach to reduce the number of ambiguous MF assignments. Thus, the final MF list contains unambiguous MF that may have been selected based on formula extensions that are expected in environmental complex mixtures and ambiguous MF. An additional consequence of this increased complexity is that the default DeNovo cut is lowered to 500 from 1000 in order to limit incorrect assignments. Some unassigned masses are also expected to remain; these could be run with Ambig = "on". 
 
 An example of the usage of MFAssign is shown below.
 
@@ -566,6 +566,8 @@ Many of the input parameters are common between MFAssign() and MFAssignCHO(), so
 * Cl37x - the maximum number of 37Cl atoms. 
 
 * Fx - the maximum number of 19F atoms. 
+
+* SulfCheck - turns on or off the option for a sulfur isotope check for QA purposes
 
 >Note that an increased number of heteroatoms or adducts will decrease the speed of the function. This is especially true if more than one type of heteroatom is allowed.
 
