@@ -115,7 +115,7 @@
 MFAssignAll <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000, POEx = 0, NOEx = 0, Nx=0,Sx=0, Px=0, S34x=0,
                                   N15x=0, Dx=0,Ex=0, Clx=0, Fx = 0, Cl37x=0, Mx=0, NH4x=0, Zx=1, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
                                   O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13, Omin = 0, HetCut = "off",
-                                  NMScut = "on") {
+                                  NMScut = "on", sulfcheck = "on") {
 
   if(POEx >1) print('WARNING: Positive Odd Electron (POEx) is greater than 1, are you sure that is what you want?')
   if(NOEx >1) print('WARNING: Positive Odd Electron (NOEx) is greater than 1, are you sure that is what you want?')
@@ -451,7 +451,7 @@ MFAssignAll <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000
 ########################
     ###############################################
     ###S34 isotope check QA
-    if(isopeaks != "none"){
+    if(isopeaks != "none" &sulfcheck == "on"){
       SIso <- isopeaks2[isopeaks2$Tag == "S34"|isopeaks2$Tag == "C13_S34"|isopeaks2$Tag == "2C13_S34",]
       SIso <- unlist(SIso[2])
       recordsS <- records1[records1$S > 0,]

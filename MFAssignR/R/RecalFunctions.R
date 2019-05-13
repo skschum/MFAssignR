@@ -51,7 +51,7 @@
 #' @examples
 #' RecalList(df = Data)
 #' @export
-#df = Unambig3
+
 RecalList <- function(df){
   df$number <- 1
   df$Adduct <- "H"
@@ -182,13 +182,6 @@ RecalList <- function(df){
 #'
 #' Recal(df = Data, peaks = Mono, isopeaks = Iso, mode = "pos", SN = 300, series1 = "O4_Na_2", series2 = "O4_H_8", series3 = "O6_Na_8")
 #' @export
-
-#peaks <- Mono1
-#isopeaks <- Iso1
-#df <- Unambig2
-#mode <- "neg"
-#SN <- 10000
-#series1 <- "O6_H_3"
 
 Recal <- function( df, peaks, isopeaks = "none",mode, SN = 0, mzRange = 50, series1=NA, series2=NA, series3=NA, series4=NA, series5=NA,
                           series6=NA, series7=NA, series8=NA, series9=NA, series10=NA, min = 100, max = 1000,

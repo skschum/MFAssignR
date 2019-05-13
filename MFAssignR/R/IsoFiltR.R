@@ -35,8 +35,9 @@
 #' IsoFiltR(peaks=df)
 #' @export
 
+#peaks <- DataX[DataX$intensity > 593*6,]
 
-IsoFiltR <- function(peaks, SN = 0, Diffrat = 0.1) {
+IsoFiltR <- function(peaks, SN = 0, Diffrat = 0.1, Sulfrat = 30) {
 
   names(peaks)[1] <- "Exp_mass"
   names(peaks)[2] <- "Abundance"
@@ -65,7 +66,7 @@ IsoFiltR <- function(peaks, SN = 0, Diffrat = 0.1) {
 
   IsoOutS_final <- data.frame(Exp_mass = -42, Abundance = -42)
   MonoOutS_final <- data.frame(Exp_mass = -42, Abundance = -42)
-#i <- 3
+#i <- 2
   for(i in 1:10){
     I <- i
     Data <- Sulflist[[I]]
@@ -116,7 +117,7 @@ IsoFiltR <- function(peaks, SN = 0, Diffrat = 0.1) {
     Abund <- rbind(Abund, Abunddummy)
     Abund$ratio <- Abund$Iso_Abund / Abund$Abundance * 100
 
-    Abund <- Abund[Abund$ratio <= 10,]
+    Abund <- Abund[Abund$ratio <= Sulfrat,]
     Abund <- unique(Abund)
 
     MonooutS <- Abund[c(1,2)]

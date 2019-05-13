@@ -81,6 +81,10 @@
 #' DeNovo sets the de novo cut point for the data. Default is 1000.
 #' @param nLoops numeric:
 #' nLoops sets the number of times the KMD and z* series assignment loops. Default is 5.
+#' @param Ambig character:
+#' Turns on or off increased ambiguity for assignments. Default is "off".
+#' @param MSMS character:
+#' Turns on or off CH2 KMD prescreening before initial assignment. Default is "off".
 #' @return list(Unambig = Unambig, Ambig = Ambigout, None = unassigned, MSAssign = MZ,
 #'          Error = Error, MSgroups = MZgroups, VK = VK)
 #'
@@ -93,13 +97,13 @@
 #'   VK - ggplot of van Krevelen plot, colored by molecular group
 #'
 #' @examples
-#' MFAssignCHO_RMD(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 200, highMW = 700)
-#' MFAssignCHO_RMD(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000)
+#' MFAssignCHO(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 200, highMW = 700)
+#' MFAssignCHO(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000)
 #' @export
 
-MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000, POEx = 0, NOEx = 0, Ex = 0, Mx = 0, NH4x = 0, Zx=1, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
-                                  O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13, Omin = 0, HetCut = "off", NMScut = "on",
-                                  DeNovo = 1000, nLoop = 5) {
+MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000, POEx = 0, NOEx = 0, Ex = 0, Mx = 0, NH4x = 0, Zx=1, Ox = 30,
+                          ppm_err = 3, SN = 0, O_Cmin = 0, O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13,
+                          Omin = 0, HetCut = "off", NMScut = "on", DeNovo = 1000, nLoop = 5, Ambig = "off", MSMS = "off") {
 
   if(POEx >1) print('WARNING: Positive Odd Electron (POEx) is greater than 1, are you sure that is what you want?')
   if(NOEx >1) print('WARNING: Positive Odd Electron (NOEx) is greater than 1, are you sure that is what you want?')
@@ -132,14 +136,14 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
   names(peaks)[2] <- "mass"
   names(peaks)[1] <- "RA"
 
-  isopeaks2 <- if(isopeaks != "None") isopeaks else data.frame(x=0,y=0,Tag = 0)
+  isopeaks2 <- if(isopeaks != "none") isopeaks else data.frame(x=0,y=0,Tag = 0)
 
   isopeaks2 <- isopeaks2[c(2,1,3)]
 
   names(isopeaks2)[2] <- "Iso_mass"
   names(isopeaks2)[1] <- "Iso_RA"
   names(isopeaks2)[3] <- "Tag"
-
+  isopeaks2 <- isopeaks2[isopeaks2$Iso_RA > SN,]
 
   peaksAll <- peaks
 
@@ -151,26 +155,47 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
   DeNovocut <- peaks[peaks$mass > DeNovo,]
   peaks <- peaks[peaks$mass <= DeNovo,]
 
-
+  Ambigcheck <- Ambig #Renames the input term so it doesn't interfere with other things
   ################################# Inital Kendrick Series implementation
-  peaks$KM <- peaks$mass* (14/14.01565)
-  peaks$KMD <- round(peaks$mass)-peaks$KM
-  peaks$zstar <- round(peaks$mass)%%14 - 14
-  peaks$KMDTest <- round(peaks$KMD, 3)
+  if(MSMS == "off"){
+    peaks$KM <- peaks$mass* (14/14.01565)
+    peaks$KMD <- round(peaks$mass)-peaks$KM
+    peaks$zstar <- round(peaks$mass)%%14 - 14
+    peaks$KMDTest <- round(peaks$KMD, 3)
 
-  Test <-  dplyr::group_by(peaks, KMDTest, zstar)
-  Test <- dplyr::mutate(Test, CH2_num = round(mass - min(mass))/14)
-  peaksend <- dplyr::filter(Test, CH2_num !=0 & CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+1)&
-                              CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+3))
+    Test <-  dplyr::group_by(peaks, KMDTest, zstar)
+    Test <- dplyr::mutate(Test, CH2_num = round(mass - min(mass))/14)
+    peaksend <- dplyr::filter(Test, CH2_num !=0 & CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+1)&
+                                CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+3))
 
-  names(peaksend)[1] <- "RA"
-  names(peaksend)[2] <- "Exp_mass"
-  peaksend <- peaksend[c(1,2)]
+    names(peaksend)[1] <- "RA"
+    names(peaksend)[2] <- "Exp_mass"
+    peaksend <- peaksend[c(1,2)]
 
-  peaks <- dplyr::filter(Test, CH2_num ==0 | CH2_num == (min(CH2_num[CH2_num!=min(CH2_num)])+1) |
-                           CH2_num == (min(CH2_num[CH2_num!=min(CH2_num)])+3))
+    peaks <- dplyr::filter(Test, CH2_num ==0 | CH2_num == (min(CH2_num[CH2_num!=min(CH2_num)])+1) |
+                             CH2_num == (min(CH2_num[CH2_num!=min(CH2_num)])+3))
 
-  peaks <- data.frame(RA = peaks[1], mass = peaks[2])
+    peaks <- data.frame(RA = peaks[1], mass = peaks[2])
+  }else{
+    peaks$KM <- peaks$mass* (14/14.01565)
+    peaks$KMD <- round(peaks$mass)-peaks$KM
+    peaks$zstar <- round(peaks$mass)%%14 - 14
+    peaks$KMDTest <- round(peaks$KMD, 3)
+
+    Test <-  dplyr::group_by(peaks, KMDTest, zstar)
+    Test <- dplyr::mutate(Test, CH2_num = round(mass - min(mass))/14)
+    peaksend <- dplyr::filter(Test, CH2_num !=0 & CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+1)&
+                                CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+3))
+
+    names(peaksend)[1] <- "RA_CH2"
+    names(peaksend)[2] <- "mass_CH2"
+    peaksend <- peaksend[c(1,2,5,6,7)]
+    #
+    peaks <- dplyr::filter(Test, RA > 0)
+    #
+    peaks <- data.frame(RA = peaks[1], mass = peaks[2])
+
+  }
 
   #################################
   #################################
@@ -385,10 +410,11 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
                               max_H = C * 2 + 2, H_test = H / max_H,
 
-                              Senior2 = H*Valence("H") + O*Valence("O") + C*Valence("C"), #Valence("P") + Valence("N") + Valence("N15") +   + Valence("Cl") + Valence("Cl37"),
-                              Senior3Atom = C + H + O + E,# N + S + P + N15 + E + Cl + Cl37 + S34,
-                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") #+ N*Valence("N") + S*Valence("S") + P*Valence("P") + S34*Valence("S34") +
-                              #N15*Valence("N15") + Cl*Valence("Cl") + Cl37*Valence("Cl37")
+                              Senior2 = H*Valence("H") + O*Valence("O") + C*Valence("C"),
+
+                              Senior3Atom = C + H + O,
+
+                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O")
     )
 
     records1 <- dplyr::filter(records1, C>0, H>0,O>=Omin, H >= D)
@@ -621,6 +647,11 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
           Out <- rbind(Step1, Step2, Step3, Step4, Step5)
           Out <- Out[(Out$C >= 2 & Out$H >= 4 & Out$O >= 0),]
+          Out$H_C <- Out$H/Out$C   #Quick internal QA to limit bad assignments
+          Out$O_C <- Out$O/Out$C
+          Out <- Out[Out$H_C < H_Cmax & Out$H_C > H_Cmin &
+                       Out$O_C < O_Cmax & Out$O_C > O_Cmin,]
+          Out <- Out[!names(Out) %in% c("H_C", "O_C")]
 
 
           Out <- rbind(Out, DummyOut)
@@ -629,7 +660,12 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
           Out_form$number <- 1
           Out_form <- dplyr::summarize_at(Out_form, "number", sum, na.rm = TRUE)
-          Out_form <- dplyr::filter(Out_form, number == max(number))
+
+          #Turns on or off ambiguity based on user input
+          if(Ambigcheck == "off") {
+            Out_form <- dplyr::filter(Out_form, number == max(number))
+          }
+
           Out_form <- unique(Out_form)
           Out2<- merge(Out, Out_form, by.x = c("Exp_mass", "form"), by.y = c("Exp_mass", "form"))
           Out3 <- dplyr::distinct(Out2, form, Exp_mass, .keep_all = TRUE)
@@ -637,7 +673,7 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
 
           Next <- Out3[!names(Out3) %in% c("base_mass", "Type", "form", "RA.y")]
-          names(Next)[4] <- "RA"
+          colnames(Next)[colnames(Next) == "RA.x"] <- "RA"
           Next <- rbind(known, Next)
           Next <- unique(Next)
           Unambig <- Next
@@ -714,10 +750,9 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
                               max_H = C * 2 + 2, H_test = H / max_H,
 
-                              Senior2 = H*Valence("H") + O*Valence("O") + C*Valence("C"), #Valence("P") + Valence("N") + Valence("N15") +   + Valence("Cl") + Valence("Cl37"),
-                              Senior3Atom = C + H + O + E,# N + S + P + N15 + E + Cl + Cl37 + S34,
-                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") #+ N*Valence("N") + S*Valence("S") + P*Valence("P") + S34*Valence("S34") +
-                              #N15*Valence("N15") + Cl*Valence("Cl") + Cl37*Valence("Cl37")
+                              Senior2 = H*Valence("H") + O*Valence("O") + C*Valence("C"),
+                              Senior3Atom = C + H + O,
+                              Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O")
     )
 
     #recordssave <- records1
@@ -827,7 +862,8 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
     records1 <- records1[c(1,2,38:40,3:21,24, 27:31, 26, 22:23,35, 32:34,36,37)]
 
-    ######################################################################
+    #######################
+
     ##Aligning Isotope masses back into the mass spectrum
     ##Align single C13 masses
     records1$C13_mass <- records1$Exp_mass + 1.0033548380
@@ -849,7 +885,7 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
     #Align double C13 masses
     records1$C13_mass2 <- records1$Exp_mass + 2.006709676
     err <- ppm_err*10^-6
-    C13Iso2 <- isopeaks2[isopeaks2$Tag == "2C13" | isopeaks2$Tag == "2C13_S34",]
+    C13Iso2 <- isopeaks2[isopeaks2$Tag == "2C13"|isopeaks2$Tag == "2C13_S34",]
     names(C13Iso2)[2] <- "C13_mass2"
     names(C13Iso2)[1] <- "C13_Abund2"
     records1$C13_mass2 <- sapply(records1$C13_mass2, function(x){
@@ -864,36 +900,6 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
     records1 <- records1[!(records1$C13_mass == 0 & records1$C13_mass2 > 0),]
     records1 <- records1[-44]
     ###########
-    #Align S34 masses  #This is a potential error zone if Sx >0 and no sulfur assigned, or if Sx >0 and
-    #no non-sulfur are assigned. Standard conditions should not have a problem.
-    # if(Sx > 0){
-    #   recordsdummy <- records1[1,]
-    #   recordsdummy[!is.na(recordsdummy)] <- NA
-    #   recordsSulf <- records1[records1$S >0,]
-    #   recordsSulf <- rbind(recordsSulf, recordsdummy)
-    #   recordsrest <- records1[records1$S ==0,]
-    #   recordsrest <- rbind(recordsrest, recordsdummy)
-    #   recordsrest$S34_mass <- 0
-    #   recordsrest$S34_Abund <- 0
-    #   recordsSulf$S34_mass <- recordsSulf$Exp_mass + 1.995797
-    #   err <- ppm_err*10^-6
-    #
-    #   S34Iso <- isopeaks2[isopeaks2$Tag == "S34",]
-    #   names(S34Iso)[2] <- "S34_mass"
-    #   names(S34Iso)[1] <- "S34_Abund"
-    #   recordsSulf$S34_mass <- sapply(recordsSulf$S34_mass, function(x){
-    #     # First check if the element lies within tolerance limits of any element in df2
-    #     ifelse(min(abs(S34Iso$S34_mass - x), na.rm=TRUE) < err * x,
-    #            # If yes, replace that element in df1 with the matching element in df2
-    #            S34Iso[which.min(abs(S34Iso$S34_mass - x)), "S34_mass"], 0)
-    #   })
-    #
-    #
-    #   recordsSulf <- dplyr::left_join(recordsSulf, S34Iso, by = "S34_mass")
-    #   recordsSulf <- recordsSulf[-46]
-    #   records1 <- rbind(recordsrest, recordsSulf)
-    # } else{records1$S34_mass <- 0;
-    # records1$S34_Abund <- 0}
 
     records1$S34_mass <- 0
     records1$S34_Abund <- 0
@@ -926,31 +932,428 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
     MonoRest <- Mono_check2[c(1:45)]
     records1 <- rbind(MonoRest, MonoGF)
     records1 <- records1[c(2,1,3:45)]
-    ##########################################
-    #ID unmatched isotope masses. For addition to unassigned mass list
-    C13 <- records1[c(41,40)]
-    names(C13)[1] <- "RA"
-    names(C13)[2] <- "Iso_mass"
-    C13_2 <- records1[c(43,42)]
-    names(C13_2)[1] <- "RA"
-    names(C13_2)[2] <- "Iso_mass"
-    S34 <- records1[c(45,44)]
-    names(S34)[1] <- "RA"
-    names(S34)[2] <- "Iso_mass"
+    ######################################################################
+    Iso_save <- records1[c("Exp_mass", "C13_mass", "C13_Abund", "C13_mass2", "C13_Abund2", "S34_mass", "S34_Abund")]
+    ###########################################################################################################
+    #Additional formula extension for the isotope masses not matched to monoisotopic mass
 
-    Isomass <- rbind(C13, C13_2, S34)
-    Isomass <- Isomass[Isomass$Iso_mass > 0,]
+    #Preparation of unmatched "isotope" mass list
+    C13 <- records1[c("C13_mass")]
+    C13_2 <- records1[c("C13_mass2")]
+    S34 <- records1[c("S34_mass")]
+    C13 <- unique(C13)
+    C13_2 <- unique(C13_2)
+    S34 <- unique(S34)
+    names(C13)[1] <- "Iso_mass"
+    names(C13_2)[1] <- "Iso_mass"
+    names(S34)[1] <- "Iso_mass"
+    Iso_match <- rbind(C13, C13_2, S34)
+    Iso_match <- unique(Iso_match)
+    Iso_match$Tag2 <- "Match"
+    Iso_align <- merge(isopeaks2, Iso_match, by.x = "Iso_mass", by.y = "Iso_mass", all = T)
+    Iso_nomatch <- Iso_align[is.na(Iso_align$Tag2),]
+    Iso_nomatch <- Iso_nomatch[c(1,2)]
+    names(Iso_nomatch)[1] <- "Exp_mass"
+    names(Iso_nomatch)[2] <- "RA"
 
-    unassignedIso <- merge(isopeaks2, Isomass, by.x = "Iso_mass", by.y = "Iso_mass", all = T)
-    unassignedIso <- unassignedIso[is.na(unassignedIso$RA),]
+    #Kendrick Series Preparation
+    Iso_nomatch <- Iso_nomatch[c(1,2)]
+    Iso_nomatch$NM <- round(Iso_nomatch$Exp_mass)
 
-    unassignedIso <- unassignedIso[c(2,1)]
-    names(unassignedIso)[2] <- "mass"
-    names(unassignedIso)[1] <- "RA"
-    ###################################
+    Iso_nomatch$KM_CH2 <- Iso_nomatch$Exp_mass * (14/14.01565)
+    Iso_nomatch$KMD_CH2 <- round(Iso_nomatch$NM - Iso_nomatch$KM_CH2, 3)
+    Iso_nomatch$z_CH2 <- round(Iso_nomatch$Exp_mass)%%14 - 14
 
-    unassigned <- rbind(unassigned, unassignedIso)  #Everything is accounted for to this point
+    Iso_nomatch$KM_O <- Iso_nomatch$Exp_mass * (16/15.9949146223)
+    Iso_nomatch$KMD_O <- round(Iso_nomatch$NM - Iso_nomatch$KM_O, 3)
+    Iso_nomatch$z_O <- round(Iso_nomatch$Exp_mass)%%16 - 16
 
+    Iso_nomatch$KM_H2 <- Iso_nomatch$Exp_mass * (2/2.01565)
+    Iso_nomatch$KMD_H2 <- round(Iso_nomatch$NM - Iso_nomatch$KM_H2, 3)
+    Iso_nomatch$z_H2 <- round(Iso_nomatch$Exp_mass)%%2 - 2
+
+    Iso_nomatch$KM_H2O <- Iso_nomatch$Exp_mass * (18/18.01056468)
+    Iso_nomatch$KMD_H2O <- round(Iso_nomatch$NM - Iso_nomatch$KM_H2O, 3)
+    Iso_nomatch$z_H2O <- round(Iso_nomatch$Exp_mass)%%18 - 18
+
+    Iso_nomatch$KM_CH2O <- Iso_nomatch$Exp_mass * (30/30.01056468)
+    Iso_nomatch$KMD_CH2O <- round(Iso_nomatch$NM - Iso_nomatch$KM_CH2O, 3)
+    Iso_nomatch$z_CH2O <- round(Iso_nomatch$Exp_mass)%%30 - 30
+
+
+    recordsx <- records1[c("RA", "Exp_mass", "C", "H", "O", "N", "S", "P", "E", "S34", "N15", "D",
+                           "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
+    recordsx$NM <- round(recordsx$Exp_mass)
+
+    recordsx$KM_CH2 <- recordsx$Exp_mass * (14/14.01565)
+    recordsx$KMD_CH2 <- round(recordsx$NM - recordsx$KM_CH2, 3)
+    recordsx$z_CH2 <- round(recordsx$Exp_mass)%%14 - 14
+
+    recordsx$KM_O <- recordsx$Exp_mass * (16/15.9949146223)
+    recordsx$KMD_O <- round(recordsx$NM - recordsx$KM_O, 3)
+    recordsx$z_O <- round(recordsx$Exp_mass)%%16 - 16
+
+    recordsx$KM_H2 <- recordsx$Exp_mass * (2/2.01565)
+    recordsx$KMD_H2 <- round(recordsx$NM - recordsx$KM_H2, 3)
+    recordsx$z_H2 <- round(recordsx$Exp_mass)%%2 - 2
+
+    recordsx$KM_H2O <- recordsx$Exp_mass * (18/18.01056468)
+    recordsx$KMD_H2O <- round(recordsx$NM - recordsx$KM_H2O, 3)
+    recordsx$z_H2O <- round(recordsx$Exp_mass)%%18 - 18
+
+    recordsx$KM_CH2O <- recordsx$Exp_mass * (30/30.01056468)
+    recordsx$KMD_CH2O <- round(recordsx$NM - recordsx$KM_CH2O, 3)
+    recordsx$z_CH2O <- round(recordsx$Exp_mass)%%30 - 30
+
+    ##Formula Extension for isotope masses
+
+    pb2 <- txtProgressBar(min = 0, max = nLoop, style = 3)
+
+    ###############
+    Allmasses <- peaksAll[!is.na(peaksAll$mass),]
+    nloop1 <- ceiling((max(Allmasses$mass + 1)-DeNovo)/200)
+    #Needs to be saved outside loop so it stays intact
+    Unambigsave <- recordsx
+    Ambigsave <- Iso_nomatch
+    Ambigreturn <- Ambigsave[Ambigsave$Exp_mass < DeNovo,]
+    #j = 0
+    for(j in 0:(nloop1)){
+      loop <- j
+      masstrim <- DeNovo + 200*loop
+      loop1 <- j-1
+      if(loop1 < 0) {loop1 <- 0}
+      masstrim1 <- DeNovo + 200*loop1
+      Ambig2 <- Ambigsave[Ambigsave$Exp_mass < masstrim,] #Resets a comparison df each time
+
+      Ambig4 <- merge(Ambigreturn, Ambig2, by.x = "Exp_mass", by.y = "Exp_mass", all = T)
+
+      Common <- Ambig4[!is.na(Ambig4$RA.x)&!is.na(Ambig4$RA.y),]
+      Common <- Common[c(1:18)]
+      names(Common) <- gsub(".x","",names(Common),fixed = TRUE)
+      New <- Ambig4[is.na(Ambig4$RA.x) & Ambig4$Exp_mass >= masstrim1,]
+      New <- New[c(1,19:ncol(New))]
+      names(New) <- gsub(".y","",names(New),fixed = TRUE)
+
+      Ambig <- rbind(Common, New)
+      #Ambig <- unique(Ambig)
+
+      #Seems good to this point
+      for(i in 1:nLoop){
+
+        known <- Unambig
+        known <- rbind(known, knowndummy)
+
+        unknown <- Ambig
+        unknown <- rbind(unknown, unknowndummy)
+        x <- 1
+        repeat{
+          x = x+1
+          knownCH2 <- known[c("RA", "Exp_mass", "KMD_CH2", "z_CH2", "C", "H", "O", "N", "S", "P", "E",
+                              "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
+          names(knownCH2)[2] <- "base_mass"
+          Step1 <- merge(unknown, knownCH2, by.x = c("KMD_CH2", "z_CH2"), by.y = c("KMD_CH2", "z_CH2"))
+          Step1$CH2_num <- round(((Step1$Exp_mass - Step1$base_mass))/14.01565)
+          Step1$C <- Step1$C + Step1$CH2_num
+          Step1$H <- Step1$H + 2 * Step1$CH2_num
+          Step1$Type <- "CH2"
+          Step1$form <- paste(Step1$C, Step1$H, Step1$O, Step1$N, Step1$S, Step1$P, Step1$E, Step1$S34,
+                              Step1$N15, Step1$D, Step1$Cl, Step1$Fl, Step1$Cl37, Step1$M, Step1$NH4,
+                              Step1$POE, Step1$NOE, sep = "_")
+          Step1 <- Step1[-c(39)]
+
+
+          knownO <- known[c("RA", "Exp_mass", "KMD_O", "z_O", "C", "H", "O", "N", "S", "P", "E",
+                            "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
+          names(knownO)[2] <- "base_mass"
+          Step2 <- merge(unknown, knownO, by.x = c("KMD_O", "z_O"), by.y = c("KMD_O", "z_O"))
+          Step2$O_num <- round(((Step2$Exp_mass - Step2$base_mass))/15.9949146223)
+          Step2$O <- Step2$O + Step2$O_num
+          Step2$Type <- "O"
+          Step2$form <- paste(Step2$C, Step2$H, Step2$O, Step2$N, Step2$S, Step2$P, Step2$E, Step2$S34,
+                              Step2$N15, Step2$D, Step2$Cl, Step2$Fl, Step2$Cl37, Step2$M, Step2$NH4,
+                              Step2$POE, Step2$NOE, sep = "_")
+          Step2 <- Step2[-c(39)]
+
+          knownH2 <- known[c("RA", "Exp_mass", "KMD_H2", "z_H2", "C", "H", "O", "N", "S", "P", "E",
+                             "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
+          names(knownH2)[2] <- "base_mass"
+          Step3 <- merge(unknown, knownH2, by.x = c("KMD_H2", "z_H2"), by.y = c("KMD_H2", "z_H2"))
+          Step3$H2_num <- round(((Step3$Exp_mass - Step3$base_mass))/2.01565)
+          Step3$H <- Step3$H + 2*Step3$H2_num
+          Step3$Type <- "H2"
+          Step3$form <- paste(Step3$C, Step3$H, Step3$O, Step3$N, Step3$S, Step3$P, Step3$E, Step3$S34,
+                              Step3$N15, Step3$D, Step3$Cl, Step3$Fl, Step3$Cl37, Step3$M, Step3$NH4,
+                              Step3$POE, Step3$NOE, sep = "_")
+          Step3 <- Step3[-c(39)]
+
+          knownH2O <- known[c("RA", "Exp_mass", "KMD_H2O", "z_H2O", "C", "H", "O", "N", "S", "P", "E",
+                              "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
+          names(knownH2O)[2] <- "base_mass"
+          Step4 <- merge(unknown, knownH2O, by.x = c("KMD_H2O", "z_H2O"), by.y = c("KMD_H2O", "z_H2O"))
+          Step4$H2O_num <- round(((Step4$Exp_mass - Step4$base_mass))/18.01056468)
+          Step4$H <- Step4$H + 2*Step4$H2O_num
+          Step4$O <- Step4$O + Step4$H2O_num
+          Step4$Type <- "H2O"
+          Step4$form <- paste(Step4$C, Step4$H, Step4$O, Step4$N, Step4$S, Step4$P, Step4$E, Step4$S34,
+                              Step4$N15, Step4$D, Step4$Cl, Step4$Fl, Step4$Cl37, Step4$M, Step4$NH4,
+                              Step4$POE, Step4$NOE, sep = "_")
+          Step4 <- Step4[-c(39)]
+
+          knownCH2O <- known[c("RA", "Exp_mass", "KMD_CH2O", "z_CH2O", "C", "H", "O", "N", "S", "P", "E",
+                               "S34", "N15", "D", "Cl", "Fl", "Cl37", "M", "NH4", "POE", "NOE", "Z")]
+          names(knownCH2O)[2] <- "base_mass"
+          Step5 <- merge(unknown, knownCH2O, by.x = c("KMD_CH2O", "z_CH2O"), by.y = c("KMD_CH2O", "z_CH2O"))
+          Step5$CH2O_num <- round(((Step5$Exp_mass - Step5$base_mass))/30.01056468)
+          Step5$H <- Step5$H + 2*Step5$CH2O_num
+          Step5$O <- Step5$O + Step5$CH2O_num
+          Step5$C <- Step5$C + Step5$CH2O_num
+          Step5$Type <- "CH2O"
+          Step5$form <- paste(Step5$C, Step5$H, Step5$O, Step5$N, Step5$S, Step5$P, Step5$E, Step5$S34,
+                              Step5$N15, Step5$D, Step5$Cl, Step5$Fl, Step5$Cl37, Step5$M, Step5$NH4,
+                              Step5$POE, Step5$NOE, sep = "_")
+          Step5 <- Step5[-c(39)]
+
+          Out <- rbind(Step1, Step2, Step3, Step4, Step5)
+          Out <- Out[(Out$C >= 2 & Out$H >= 4 & Out$O >= 0),]
+          Out$H_C <- Out$H/Out$C   #Quick internal QA to limit bad assignments
+          Out$O_C <- Out$O/Out$C
+          Out <- Out[Out$H_C < H_Cmax & Out$H_C > H_Cmin &
+                       Out$O_C < O_Cmax & Out$O_C > O_Cmin,]
+          Out <- Out[!names(Out) %in% c("H_C", "O_C")]
+
+
+          Out <- rbind(Out, DummyOut)
+
+          Out_form <- dplyr::group_by(Out, Exp_mass, form)
+
+          Out_form$number <- 1
+          Out_form <- dplyr::summarize_at(Out_form, "number", sum, na.rm = TRUE)
+
+          #Turns on or off ambiguity based on user input
+          if(Ambigcheck == "off") {
+            Out_form <- dplyr::filter(Out_form, number == max(number))
+          }
+
+          Out_form <- unique(Out_form)
+          Out2<- merge(Out, Out_form, by.x = c("Exp_mass", "form"), by.y = c("Exp_mass", "form"))
+          Out3 <- dplyr::distinct(Out2, form, Exp_mass, .keep_all = TRUE)
+          Out3 <- Out3[!names(Out3) %in% c("number")]
+
+
+          Next <- Out3[!names(Out3) %in% c("base_mass", "Type", "form", "RA.y")]
+          colnames(Next)[colnames(Next) == "RA.x"] <- "RA"
+          Next <- rbind(known, Next)
+          Next <- unique(Next)
+          Unambig <- Next
+
+          masses <- Unambig[c("Exp_mass", "RA")]
+          names(masses)[2] <- "Var"
+          Ambig <- merge(unknown, masses, by = "Exp_mass", all = T)
+          Ambig <- Ambig[is.na(Ambig$Var),]
+          Ambig <- Ambig[-19]
+          Ambigreturn <- unique(Ambig)
+
+          if(x == 2){
+            break
+          }
+        }
+        setTxtProgressBar(pb2, i)
+        Unambig
+      }
+    }
+    records1X <- Unambig[c(1:20)]
+
+    records1X <- unique(records1X)
+
+
+    records1X$mode <- ionMode
+
+
+    df1 <- records1X[records1X$mode == "pos" & records1X$M > 0,]
+    df1$Neutral_mass <- df1$Exp_mass - df1$M * 22.989221
+
+    df2 <- records1X[records1X$mode == "pos" & records1X$M == 0,]
+    df2$Neutral_mass <- df2$Exp_mass - 1.00727645216
+
+    df3 <- records1X[records1X$mode == "neg",]
+    df3$Neutral_mass <- df3$Exp_mass + 1.00727645216
+
+    records1X <- rbind(df1, df2, df3)
+    records1X <- records1X[-c(21)]
+
+    #NOEx seems to be good to this point.
+    ###Standard QA steps, second round
+    #if(records1X$E > 0) {records1X$C <- records1X$C + records1X$E} # This is to fix the theor. masses
+    records1X <- dplyr::mutate(records1X, O_C = O/(C+E), H_C =H/(C+E),
+
+                               Neutral_mass = Neutral_mass + POE * (2.0156500638/2)- NOE * (2.0156500638/2),
+
+
+                               theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
+                                 S * EM("S") + P * EM("P31") +
+                                 Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E2") + S34 * EM("S34") +
+                                 Cl37 * EM("Cl37m") + N15 * EM("N15H") +
+                                 D * EM("D") + M * EM("M") + NH4 * EM("NH4") +POE * EM("POE") + NOE*EM("NOE"),
+
+                               theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
+                                 S * EM("S") + P * EM("P31") + Fl * EM("Fl19") +
+                                 Cl * EM("Cl35") +  E * EM("E2") + S34 * EM("S34") + Cl37 * EM("Cl37m") +
+                                 N15 * EM("N15H") +
+                                 D * EM("D"),
+
+                               #C = C + E, #It is added back so that formulas are more accurate.
+
+                               DBE = C - 0.5 * (H + Cl + Cl37 +Fl) + 0.5 * (N +N15+ P) + 1,
+
+                               err_ppm = ((Neutral_mass - theor_mass) / Neutral_mass * 10^6),
+
+                               AE_ppm = abs((Neutral_mass - theor_mass) / Neutral_mass * 10^6),
+
+                               NM = round(Exp_mass),
+
+                               KM = Exp_mass * (14 / 14.01565), KMD = round(Exp_mass) - KM,
+
+                               max_LA = theor_mass1 / 13, actual_LA = ((C - E) + N + S + Fl + O + E + S34 + P + Cl +Cl37+N15) ,
+
+                               rule_13=actual_LA/max_LA,
+
+                               Senior1 = H + P + N + Cl + Fl + Cl37 + N15  ,
+
+                               STest = S + S34, ClTest = Cl + Cl37, NTest = N + N15, DBEO = DBE-O,
+
+                               max_H = C * 2 + 2, H_test = H / max_H,
+
+                               Senior2 = Valence("P") + Valence("N") + Valence("N15") + Valence("H")  +
+                                 Valence("Cl") + Valence("Cl37") + Valence("Fl"),
+                               Senior3Atom = C + H + O + N + S + P + N15 + E + Cl + Fl + Cl37 + S34,
+                               Senior3Val = C*Valence("C") + H*Valence("H") + O*Valence("O") + N*Valence("N")
+                               + S*Valence("S") + P*Valence("P") + S34*Valence("S34") + Fl*Valence("Fl") +
+                                 N15*Valence("N15") + Cl*Valence("Cl") + Cl37*Valence("Cl37")
+    )
+
+
+
+    #recordssave <- records1X
+    #records1X <- recordssave
+
+    records1X <- dplyr::filter(records1X, C>0, H>0,O>=Omin, H >= D)
+    records1X <- unique(records1X)
+    records1X <- dplyr::filter(records1X, O_C < O_Cmax & H_C <= H_Cmax & H_C > H_Cmin & O_C >= O_Cmin &
+
+                                 DBEO >= DBEOmin & DBEO <= DBEOmax &
+
+
+
+                                 H_test <= 1 & rule_13 <= 1 &
+
+                                 AE_ppm <= ppm_err &
+
+                                 Even(Senior1)==TRUE & DBE >= 0 & DBE <= 0.9 * (C + N) &
+
+                                 O <= 2 * C + 3 * (N+N15) + 4 * P + 4 * (S+S34)&
+
+                                 #O>= P*4&
+
+                                 RA > 0 &
+
+                                 Senior2 >= 2*Valence("C") &
+
+                                 Senior3Val >= (2*Senior3Atom - 1)
+    )
+
+
+
+    records1X <- records1X[!names(records1X) %in% c("Senior1", "Senior2", "Senior3Val", "Senior3Atom")]
+
+    ###Formula generation
+    records1X <-
+      dplyr::mutate(records1X, Cform = ifelse(C == 0 , "",
+                                              ifelse(C == 1 , "C", paste("C",C, sep = ""))),
+                    Hform = ifelse(H == 0 , "",
+                                   ifelse(H == 1 , "H", paste("H",H, sep = ""))),
+                    Nform = ifelse(NTest == 0 , "",
+                                   ifelse(NTest == 1 , "N", paste("N",NTest, sep = ""))),
+                    Oform = ifelse(O == 0 , "",
+                                   ifelse(O == 1 , "O", paste("O",O, sep = ""))),
+                    Sform = ifelse(STest == 0 , "",
+                                   ifelse(STest == 1 , "S", paste("S",STest, sep = ""))),
+                    Pform = ifelse(P == 0 , "",
+                                   ifelse(P == 1 , "P", paste("P",P, sep = ""))),
+                    Clform = ifelse(ClTest == 0 , "",
+                                    ifelse(ClTest == 1 , "Cl", paste("Cl",ClTest, sep = ""))),
+                    Flform = ifelse(Fl == 0 , "",
+                                    ifelse(Fl == 1 , "F", paste("F",Fl, sep = ""))))
+
+    records1X <- tidyr::unite(records1X, class, Nform, Oform, Sform, Pform, Clform, Flform,
+                              sep = "", remove = FALSE)
+
+    records1X <- tidyr::unite(records1X, formula, Cform, Hform, Nform, Oform, Sform, Pform, Clform,
+                              Flform, sep = "")
+
+    records1X <-
+      dplyr::mutate(records1X, Cform = ifelse(C == 0 , "", "C"),
+                    Hform = ifelse(H == 0 , "", "H"),
+
+                    Nform = ifelse(NTest == 0 , "", "N"),
+
+                    Oform = ifelse(O == 0 , "", "O"),
+
+                    Sform = ifelse(STest == 0 , "","S"),
+                    Pform = ifelse(P == 0 , "", "P"),
+                    Clform = ifelse(ClTest == 0 , "", "Cl"),
+                    Flform = ifelse(Fl == 0 , "", "F"))
+
+    records1X <- tidyr::unite(records1X, group, Cform, Hform, Nform, Oform, Sform, Pform,
+                              Clform, Flform, sep = "")
+
+    ###Supplemental Specialized QA Steps
+    records1X<-dplyr::mutate(records1X, HA = NTest + STest + P + ClTest + E + Fl)
+
+    records1X<-dplyr::group_by(records1X, Exp_mass)
+
+    ifelse(HetCut == "on", records1X<-dplyr::filter(records1X, HA == (min(HA))), records1X<- records1X)
+
+    records1X <- dplyr::group_by(records1X, Exp_mass)
+
+    records1X <- dplyr::distinct(records1X, formula, .keep_all = TRUE)
+
+    records1X <- dplyr::ungroup(records1X)
+
+    records1X <- records1X[!names(records1X) %in% c("HA")]
+
+
+
+    #records3 <- dplyr::rename(records1X, mass = Exp_mass)
+
+    cut <- dplyr::bind_rows(peaksAll2)
+    cut <- unique(cut)
+    unassigned <- dplyr::left_join(cut, records1X, by = "Exp_mass")
+    unassigned <- unassigned[is.na(unassigned$formula),]
+    unassigned <- unassigned[c("RA.x", "Exp_mass")]
+    names(unassigned)[1] <- "RA"
+    names(unassigned)[2] <- "mass"
+    unassigned <- unique(unassigned)  #Good to this point
+
+    records1X$mode <- ionMode
+
+
+    df1 <- records1X[records1X$mode == "pos",]
+    df1$theor_mass1 <- df1$theor_mass1 + proton
+
+    df2 <- records1X[records1X$mode == "neg",]
+    df2$theor_mass1 <- df2$theor_mass1 - proton
+
+    records1X <- rbind(df1, df2)
+    records1X <- records1X[-c(44)]  #removes mode
+
+    records1X <- records1X[c(1,2,41:43,3:21,24,27:31, 26, 22:23,38, 32:34,39, 40)]
+
+    records1 <- records1X
+    records1 <- merge(records1, Iso_save, by.x = "Exp_mass", by.y = "Exp_mass", all = T)
+    records1 <- records1[c(2,1, 3:ncol(records1))]
+    ###THIS IS THE END OF THE SECONDARY ASSIGNMENT FOR THE UNMATCHED ISOTOPE MASSES
+
+    ##############################################################
 
     records1$Dups <- duplicated(records1$Exp_mass)
     records2 <- records1[records1$Dups == FALSE,]
@@ -982,7 +1385,7 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
 
       NewKMD <- tidyr::separate(NewKMD, mDa, c("Whole", "Dec"), sep = -2)
 
-      NewKMD$AddForm <- paste(NewKMD$formula, NewKMD$M, sep = "_")
+      NewKMD$AddForm <- paste(NewKMD$formula, NewKMD$M, NewKMD$POE, NewKMD$NOE, sep = "_")
       NewKMD <- unique(NewKMD)
 
       Ambigout2 <- dplyr::group_by(NewKMD,NM, Dec, DBEO)
