@@ -8,7 +8,8 @@ MFAssignCHO_RMD(peaks, isopeaks = "none", ionMode, lowMW = 100,
   highMW = 1000, POEx = 0, NOEx = 0, Ex = 0, Mx = 0, NH4x = 0,
   Zx = 1, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0, O_Cmax = 2.5,
   H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13, Omin = 0,
-  HetCut = "off", NMScut = "on", DeNovo = 1000, nLoop = 5)
+  HetCut = "off", NMScut = "on", DeNovo = 1000, nLoop = 5,
+  Ambig = "off", MSMS = "off")
 }
 \arguments{
 \item{peaks}{data frame, Monoisotopic Masses}
@@ -83,6 +84,12 @@ NMScut turns on or off the nominal mass series QA parameter. Default is “on”
 \item{DeNovo}{numeric:
 DeNovo sets the de novo cut point for the data. Default is 1000.}
 
+\item{Ambig}{character:
+Turns on or off increased ambiguity for assignments. Default is "off".}
+
+\item{MSMS}{character:
+Turns on or off CH2 KMD prescreening before initial assignment. Default is "off".}
+
 \item{nLoops}{numeric:
 nLoops sets the number of times the KMD and z* series assignment loops. Default is 5.}
 }
@@ -132,6 +139,6 @@ doing so will allow likely 13C isotope masses to be match to assigned monoisotop
 The inclusion of an isotopic mass list is not required, however.
 }
 \examples{
-MFAssignCHO_RMD(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 200, highMW = 700)
-MFAssignCHO_RMD(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000)
+MFAssignCHO(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 200, highMW = 700)
+MFAssignCHO(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000)
 }

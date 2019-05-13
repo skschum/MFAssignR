@@ -7,10 +7,11 @@
 MFAssign_RMD(peaks, isopeaks = "none", ionMode, lowMW = 100,
   highMW = 1000, POEx = 0, NOEx = 0, Nx = 0, Sx = 0, Px = 0,
   S34x = 0, N15x = 0, Dx = 0, Ex = 0, Clx = 0, Cl37x = 0, Fx = 0,
-  Mx = 0, NH4x = 0, Zx = 1, Ox = 30, ppm_err = 3, SN = 0,
-  O_Cmin = 0, O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13,
-  DBEOmax = 13, Omin = 0, HetCut = "off", NMScut = "on", DeNovo = 300,
-  nLoop = 5)
+  Mx = 0, NH4x = 0, Zx = 1, Sval = 2, Nval = 3, S34val = 2,
+  N15val = 3, Pval = 5, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
+  O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13,
+  Omin = 0, HetCut = "off", NMScut = "on", DeNovo = 300, nLoop = 5,
+  SulfCheck = "on", Ambig = "off", MSMS = "off")
 }
 \arguments{
 \item{peaks}{data frame, Monoisotopic Masses}
@@ -72,6 +73,21 @@ Sets the amount of Ammonium adduct to be used in assignment. Default is 0.}
 \item{Zx}{numeric:
 Sets the amount of charge to be used in assignment. Default is 1.}
 
+\item{Sval}{numeric:
+Sets the valence of Sulfur. Default is 2.}
+
+\item{Nval}{numeric:
+Sets the valence of Nitrogen. Default is 3.}
+
+\item{S34val}{numeric:
+Sets the valence of Sulfur 34. Default is 2.}
+
+\item{N15val}{numeric:
+Sets the valence of Nitrogen 15. Default is 3.}
+
+\item{Pval}{numeric:
+Sets the valence of Phosphorus. Default is 5.}
+
 \item{Ox}{numeric:
 Ox sets the maximum number of oxygen looked for in the CHOFIT core, it limits the number of loops performed}
 
@@ -112,8 +128,17 @@ NMScut turns on or off the nominal mass series QA parameter. Default is “on”
 \item{DeNovo}{numeric:
 DeNovo sets the de novo cut point for the data. Default is 300.}
 
-\item{nLoops}{numeric:
-nLoops sets the number of times the KMD and z* formula extension loops. Default is 5.}
+\item{nLoop}{numeric:
+nLoop sets the number of times the KMD and z* formula extension loops. Default is 5.}
+
+\item{SulfCheck}{character:
+Turns on or off the sulfur isotope check QA parameter. Default is "on".}
+
+\item{Ambig}{character:
+Turns on or off increased ambiguity for assignments. Default is "off".}
+
+\item{MSMS}{character:
+Turns on or off CH2 KMD prescreening before initial assignment. Default is "off".}
 }
 \value{
 list(Unambig = Unambig, Ambig = Ambigout, None = unassigned, MSAssign = MZ,
@@ -162,6 +187,6 @@ doing so will allow likely 13C isotope masses to be match to assigned monoisotop
 The inclusion of an isotopic mass list is not required, however.
 }
 \examples{
-MFAssign_RMD(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 200, highMW = 700)
-MFAssign_RMD(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000, Nx = 3, Sx = 1)
+MFAssign(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 200, highMW = 700)
+MFAssign(peaks = Mono_df, isopeaks = Iso_df, "neg", lowMW = 100, highMW = 1000, Nx = 3, Sx = 1)
 }

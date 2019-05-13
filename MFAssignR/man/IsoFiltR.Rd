@@ -4,7 +4,7 @@
 \alias{IsoFiltR}
 \title{Identifies and separates likely isotopic masses from monoisotopic masses}
 \usage{
-IsoFiltR(peaks, SN = 0, Diffrat = 0.1)
+IsoFiltR(peaks, SN = 0, Diffrat = 0.1, Sulfrat = 30)
 }
 \arguments{
 \item{peaks}{data frame:
