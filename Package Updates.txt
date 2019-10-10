@@ -23,3 +23,9 @@ Package Updates
 - Added the functionality of those functions to MFAssign and MFAssignCHO() with the parameters "Ambig" and "MSMS" respectively
 - Added RecalX() and Recal_2X() as additional recalibration functions. See documentation for more information
 - General improvements to flexibility and transparency of moleular formula assignment.
+
+10/10/2019
+- Combined all four versions of Recal() into a single function. All functionality is still available, but is accessed via the "opt" parameter in the function. opt = 1 replaces RecalX(), opt = 2 replaces Recal_2X(), opt = 3 replaces Recal(), and opt = 4 replaces Recal_2().
+- Additional controls were added to IsoFiltR() so now the user can set the matching error allowance for mono/iso pairs using the "Carberr" or "Sulferr" parameters. The maximum allowed 34S ratio can also be set by the user now using the "Sulfrat" parameter.
+- Internal change to MFAssign() and MFAssignCHO() now check the O/C and H/C ratios during formula extension, if they exceed the limits set by the user, the formula is discarded. This was done post formula extension in previous versions. 
+
