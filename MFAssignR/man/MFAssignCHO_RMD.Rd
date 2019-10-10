@@ -84,14 +84,14 @@ NMScut turns on or off the nominal mass series QA parameter. Default is “on”
 \item{DeNovo}{numeric:
 DeNovo sets the de novo cut point for the data. Default is 1000.}
 
+\item{nLoop}{numeric:
+nLoops sets the number of times the KMD and z* series assignment loops. Default is 5.}
+
 \item{Ambig}{character:
 Turns on or off increased ambiguity for assignments. Default is "off".}
 
 \item{MSMS}{character:
 Turns on or off CH2 KMD prescreening before initial assignment. Default is "off".}
-
-\item{nLoops}{numeric:
-nLoops sets the number of times the KMD and z* series assignment loops. Default is 5.}
 }
 \value{
 list(Unambig = Unambig, Ambig = Ambigout, None = unassigned, MSAssign = MZ,

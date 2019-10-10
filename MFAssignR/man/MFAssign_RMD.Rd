@@ -8,10 +8,10 @@ MFAssign_RMD(peaks, isopeaks = "none", ionMode, lowMW = 100,
   highMW = 1000, POEx = 0, NOEx = 0, Nx = 0, Sx = 0, Px = 0,
   S34x = 0, N15x = 0, Dx = 0, Ex = 0, Clx = 0, Cl37x = 0, Fx = 0,
   Mx = 0, NH4x = 0, Zx = 1, Sval = 2, Nval = 3, S34val = 2,
-  N15val = 3, Pval = 5, Ox = 30, ppm_err = 3, SN = 0, O_Cmin = 0,
-  O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13, DBEOmax = 13,
-  Omin = 0, HetCut = "off", NMScut = "on", DeNovo = 300, nLoop = 5,
-  SulfCheck = "on", Ambig = "off", MSMS = "off")
+  N15val = 3, Pval = 5, Ox = 30, ppm_err = 3, iso_err = 5, SN = 0,
+  O_Cmin = 0, O_Cmax = 2.5, H_Cmin = 0.3, H_Cmax = 3, DBEOmin = -13,
+  DBEOmax = 13, Omin = 0, HetCut = "off", NMScut = "on", DeNovo = 300,
+  nLoop = 5, SulfCheck = "on", Ambig = "off", MSMS = "off")
 }
 \arguments{
 \item{peaks}{data frame, Monoisotopic Masses}

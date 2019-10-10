@@ -8,8 +8,8 @@ and produces a list of the chosen recalibrants.}
 Recal(df, peaks, isopeaks = "none", mode, SN = 0, mzRange = 50,
   series1 = NA, series2 = NA, series3 = NA, series4 = NA,
   series5 = NA, series6 = NA, series7 = NA, series8 = NA,
-  series9 = NA, series10 = NA, min = 100, max = 1000, bin = 10,
-  obs = 2)
+  series9 = NA, series10 = NA, min = 100, max = 1000, bin = 14,
+  obs = 1, num = 5, opt = 1)
 }
 \arguments{
 \item{df}{data frame output from MFAssign() or MFAssignCHO()}
@@ -28,10 +28,15 @@ Recal(df, peaks, isopeaks = "none", mode, SN = 0, mzRange = 50,
 
 \item{max}{numeric - maximum mass range of the data being analyzed.}
 
-\item{bin}{numeric - sets the mass window bins to choose recalibrants from, default is 10.}
+\item{bin}{numeric - sets the mass window bins to choose recalibrants from, default is 14.}
 
-\item{obs}{numeric - sets the number of peaks to choose as recalibrants from each bin,
-default is 2}
+\item{obs}{numeric - sets the number of peaks to choose as recalibrants from each bin.
+Default is 1}
+
+\item{num}{numeric - sets the number of peaks on either side of defined recalibrant to choose
+as additional recalibrants. Default is 5.}
+
+\item{opt}{numeric - selects the recalibration option to be used, options are 1, 2, 3, or 4}
 
 \item{series(1-10)}{character the recalibrant series, "O7_Na_4" for example, default is NA}
 }

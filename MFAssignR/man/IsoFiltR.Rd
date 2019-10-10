@@ -4,11 +4,27 @@
 \alias{IsoFiltR}
 \title{Identifies and separates likely isotopic masses from monoisotopic masses}
 \usage{
-IsoFiltR(peaks, SN = 0, Diffrat = 0.1, Sulfrat = 30)
+IsoFiltR(peaks, SN = 0, Diffrat = 0.1, Sulfrat = 30, Sulferr = 5,
+  Carberr = 5)
 }
 \arguments{
 \item{peaks}{data frame:
 The input 2 column data frame containing abundance and peak mass}
+
+\item{SN}{numeric:
+Sets the noise cut for the data, peaks below this value will not be evaluated}
+
+\item{Diffrat}{numeric:
+A value multiplied by the minimum allowed 13C ratio to expand the allowed range}
+
+\item{Sulfrat}{numeric:
+Sets the maximum 34S ratio that is allowed for matching}
+
+\item{Sulferr}{numeric:
+Sets the maximum allowed error (ppm) for 34S mass matching, default is 5}
+
+\item{Carberr}{numeric:
+Sets the maximum allowed error (ppm) for 13C mass matching, default is 5}
 }
 \value{
 list(Monolist, Isolist):
