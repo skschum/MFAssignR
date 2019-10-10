@@ -79,7 +79,7 @@
 #' NMScut turns on or off the nominal mass series QA parameter. Default is “on”.
 #' @param DeNovo numeric:
 #' DeNovo sets the de novo cut point for the data. Default is 1000.
-#' @param nLoops numeric:
+#' @param nLoop numeric:
 #' nLoops sets the number of times the KMD and z* series assignment loops. Default is 5.
 #' @param Ambig character:
 #' Turns on or off increased ambiguity for assignments. Default is "off".

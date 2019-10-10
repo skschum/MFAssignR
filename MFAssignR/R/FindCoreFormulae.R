@@ -14,12 +14,16 @@
 #' @export
 FindCoreFormulae <- function(env) {
   # constants
+  #coreXEM <- 162.127970
+  #coreRNM <- 162
+  #RECORDS <- vector("list", 1000000)
   moietyMass <- 0.0363855087200022;
   maxAttempts <- env$Ox/3;
 
   env$formulaOK <- FALSE
 
   if (Even(env$coreRNM)) {
+    #try <- 4
     for(try in 1:maxAttempts) {
     # Find the hydrocarbon having this NM and maximum number of moles of C.
 
@@ -32,14 +36,18 @@ FindCoreFormulae <- function(env) {
     for (step in CompFactorToInt("C"):CompFactorToInt("O")) {
       env$coreCEM <- env$coreCEM + unlist(env$loop[step])*EM(CompIntToFactor(step))
     }
-    switch(env$fitMode,
-           "ppm" = { env$xemErr <-
-             round(1e6*(env$coreCEM-env$coreXEM)/env$exactEM, env$numDigits) },
-           "mDa" = { env$xemErr <-
-             round(1e3*(env$coreCEM-env$coreXEM), env$numDigits) })
+    #switch(env$fitMode,
+           #"ppm" = { env$xemErr <-
+            # round(1e6*(env$coreCEM-env$coreXEM)/env$coreCEM, env$numDigits) }#,
+           #"mDa" = { env$xemErr <-
+             #round(1e3*(env$coreCEM-env$coreXEM), env$numDigits) }
+           #)
 
     env$Ratio <- round((env$coreXEM - env$coreCEM)/moietyMass *10)/10
-    if(env$Ratio - round(env$Ratio)==0){
+    if(abs(env$Ratio - round(env$Ratio))<=0.10001){  #Changed 5/21/19 This has an impact on what is assigned
+      env$Ratio <- round(env$Ratio, 0)
+
+      env$xemErr <- round(1e6*(env$coreCEM-(env$coreXEM - env$Ratio*moietyMass))/env$coreCEM, env$numDigits)
 
       env$records = list(RA = (env$RA), coreNM = env$coreRNM, Exp_mass = env$ionEM,
                                   C = env$loop[CompFactorToInt("C")],
@@ -53,11 +61,17 @@ FindCoreFormulae <- function(env) {
                                   NH4 = env$loop[CompFactorToInt("NH4")], POE = env$loop[CompFactorToInt("POE")],
                                   NOE = env$loop[CompFactorToInt("NOE")],
                                   Z = env$loop[CompFactorToInt("Z")],
-                                  Neutral_mass = env$exactEM, CHO_mass = env$coreCEM, CHO_Err = env$xemErr, Ratio = env$Ratio)}}
+                                  Neutral_mass = env$exactEM, CHO_mass = env$coreCEM,
+                                  CHO_Err = env$xemErr, Ratio = env$Ratio)
+      break  #This causes the function to pick the first matching hit.
+    }
+
+    #env$RECORDS[[step]] <- env$records
+    }
 
 
-    env$formulaOK <- (ValidFormula(env$loop) & (abs(env$xemErr) <= env$maxErr))
-
+    #env$formulaOK <- ( (abs(env$xemErr) <= env$maxErr*10))
+    #ValidFormula(env$loop) &
   }
 
 }
