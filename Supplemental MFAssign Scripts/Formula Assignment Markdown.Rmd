@@ -56,9 +56,9 @@ Iso <- Isotopes[["Iso"]]
 ###CHO Assignment
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
-#Currently this is a positive mode assignment markdown, with no odd electrons, this can be changed as desired.
+#Currently this is a negative mode assignment markdown, with no odd electrons, this can be changed as desired.
 
-Assign <- MFAssignCHO_RMD(Mono, Iso, ionMode = "pos", lowMW =50, highMW = 1000, Mx = 1, ppm_err = 3, H_Cmin = 0.3,
+Assign <- MFAssignCHO_RMD(Mono, Iso, ionMode = "neg", lowMW =50, highMW = 1000, ppm_err = 3, H_Cmin = 0.3,
                       HetCut = "off", NMScut = "on", SN = SNRatio*KMDN)   #Standard parameters for positive mode
 ```
 
@@ -90,12 +90,13 @@ gc()
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 #This is the section that requires the most user input. You should run through a representative sample first so that you know what recalibrants you are planning on using, and then set those recalibrants in the function
 
-#check <- MFRecalList(Unambig1)
+#List of recalibrant series to choose from.
+Recalibrants <- RecalList(Unambig1)
 
 ##################################
-#Qualitative check of recalibrant series and mass recalibration.
+#Mass recalibration using the chosen series.
 
-Test <- Recal(Unambig1, peaks = Mono, isopeaks = Iso, mzRange = 50, mode = "pos", SN = SNRatio*KMDN, series1 = "O3_Na_3", series2 = "O8_Na_6", series3 = "O12_Na_8", series4 = "O10_Na_5", series5 = "O14_Na_9", series6 = "O10_Na_7", series7 = "O7_Na_4", series8 = "O3_Na_1", bin = 10, obs = 2) #Good parameters for the
+Test <- Recal(Unambig1, peaks = Mono, isopeaks = Iso, mzRange = 50, mode = "neg", SN = SNRatio*KMDN, series1 = "O3_H_3", series2 = "O8_H_6", series3 = "O12_H_8", series4 = "O10_H_5", series5 = "O14_H_9", series6 = "O10_H_7", series7 = "O7_H_4", series8 = "O3_H_1", bin = 10, obs = 1, opt = 1) #Good parameters for the
 
 
 Plot <- Test[["Plot"]]
@@ -110,8 +111,8 @@ List <- Test[["RecalList"]]
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 #Be sure this is updated based on what you want to be assigning
 
-Assign <- MFAssign_RMD(Mono2, Iso2, ionMode = "pos", lowMW =50, highMW = 1000, Mx = 1, Nx = 5, ppm_err = 3, H_Cmin = 0.3,
-                      HetCut = "off", NMScut = "on", SN = SNRatio*KMDN)   #Relatively standard parameters for positive mode
+Assign <- MFAssign_RMD(Mono2, Iso2, ionMode = "neg", lowMW =50, highMW = 1000, Sx = 1, Nx = 3, ppm_err = 3, H_Cmin = 0.3, Omin = 1,
+                      HetCut = "off", NMScut = "on", SN = SNRatio*KMDN)   #Relatively standard parameters for negative mode
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
