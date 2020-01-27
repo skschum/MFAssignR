@@ -1,15 +1,15 @@
 # MFAssignR
 
 
-##Package Overview and References
+## Package Overview and References
 
 The MFAssignR package was designed for multi-element molecular formula (MF) assignment of ultrahigh resolution mass spectrometry measurements. A number of tools for internal mass recalibration, MF assignment, signal-to-noise evaluation, and unambiguous MF assignments are provided. This package contains MFAssign(), MFAssign_RMD(), MFAssignCHO(), MFAssignCHO_RMD(), SNplot(), HistNoise(), KMDNoise(), RecalList(), Recal(), and IsoFiltR() described in the sections below. Note, the functions with “RMD” were designed to be run within an R Markdown file and are otherwise identical to the corresponding non-”RMD” versions. To learn more, please see the section titled “Semi-Automated MFAssignR Functions” in the User Manual.  User caution with the function parameter settings and output evaluation is required; thus, several function outputs are provided to assist the user with these evaluations.
 
-##Molecular Formula (MF) Assignment
+## Molecular Formula (MF) Assignment
 
 The MF assignment algorithm in MFAssign was adapted from the low mass moiety CHOFIT assignment algorithm developed by Green and Perdue (2015). Briefly, the CHOFIT algorithm uses low mass moieties such as CH4O-1 and C4O-3 to move around in the O/C and H/C space to assign MF with C, H, and O without conventional loops. The MFAssignCHO() function uses the CHOFIT strategy to assign MF with C, H, and O. Additional combinatorial assignments with various heteroatoms are made using nested loops that subtract the mass of a heteroatom from the measured ion mass, creating a CHO “core” mass, which can then be assigned using the low mass moiety CHOFIT approach. The MFAssign() function uses this latter approach with several additional heteroatoms. Further information is available in Green and Perdue (2015) and Perdue and Green (2015). 
 
-###MFAssign()
+### MFAssign()
 
 Using the low mass moiety and combinatorial assignment approach, MFAssign() can be used to assign MF with 12C, 1H, and 16O and a variety of heteroatoms and isotopes, including 2H, 13C, 14N, 15N, 31P, 32S, 34S, 35Cl, 37Cl,and 19F. It can also assign Na+ adducts, which are common in positive ion mode. Due to the increasing number of chemically reasonable MF with the increasing number of possible elements and increasing molecular weight, the output will provide a list of ambiguous and unambiguous MF. 
 
@@ -19,11 +19,11 @@ MFAssign tracks how many “paths” can be used to assign each MF and if a sing
 
 To allow ambiguity in the formula assignments there is the "Ambig" parameter which can be turned "on" or "off". This option turns off the path frequency prioritization step for the formula assignments as described above, which allows all chemically reasonably MF assignments to be retained for each mass. Additionally, an "MSMS" parameter is available, which can be used to assign MF in a data set that is not very continuous (e.g., MS/MS data). In this case, no pre-filtering of the masses below the “DeNovo” threshold is done, meaning that all masses below the threshold will be assigned directly. This causes the function to run somewhat slower, but can improve assignment coverage in some situations. These parameters replace the MFAssignAll() and MFAssignMSMS() functions from previous versions (<= v.0.0.3).
 
-###MFAssignCHO() 
+### MFAssignCHO() 
 
 MFAssignCHO() is a simplified version of MFAssign() used only to assign MF with CHO elements. MFAssignCHO() runs faster than MFAssign() and can be used for preliminary MF assignments prior to the selection of internal recalibration ions in conjunction with RecalList() and Recal(), which are described below. 
 
-##Isotope Filtering
+## Isotope Filtering
 
 The IsoFiltR() function can identify prospective 13C and 34S isotope masses. This is done to avoid incorrect monoisotopic MF assignments. This function operates on a two column data frame using the same structure as the MFAssign() function. 
 
@@ -43,11 +43,11 @@ The candidate pairs that make it through these four steps are put into two data 
   
 When the two data frame outputs from IsoFiltR() are put into MFAssign(), the function will match the assigned monoisotopic masses to their corresponding isotopic masses. Additional work would be needed to use the isotopes to reduce ambiguous MF assignments assigned to a single mass. Thus IsoFiltR() should not be considered as definitive proof of the presence or absence of 13C or 34S in a MF, but it does identify most MF with these naturally occurring isotopes and limit the chances that they are incorrectly assigned with a monoisotopic MF.
 
-##Molecular Formula (MF) Quality Assurance
+## Molecular Formula (MF) Quality Assurance
 
 MFAssign() includes a number of quality assurance (QA) steps to ensure output of chemically reasonable MF. In general, the default settings are relatively lenient to yield a wide range of chemically reasonable MF for a broad range of experiments. However, many of the parameters are customizable, including DBE-O limits (Herzsprung et al. Anal. and Bioanal. Chem. 2014), O/C ratio limits, H/C ratio limits, and minimum number of O. The HetCut parameter can be used to select the MF with the lowest number of heteroatoms, if more than one MF is assigned to a single mass (Ohno and Ohno, 2013). The NMScut parameter identifies the CH4 vs O exchange series in each nominal mass as described in Koch et al. (2007), which can be used to limit ambiguous assignments. Additional non-adjustable QA parameters are used in all of the MFAssign functions, including the nitrogen rule, large atom rule, the maximum number of H rule, maximum DBE rule (Lobodin et al., 2012), and the Senior rules (Kind et al. 2007).
 
-##Noise Assessment
+## Noise Assessment
 
 Noise level assessment can be accomplished using the either the HistNoise() or KMDNoise() functions in conjunction with the SNplot() functions. The HistNoise() method is based on the method developed by Zhurov et al. (2014), and KMDNoise() is a new custom method based on our observations of raw data Kendrick mass defect analysis. 
 
@@ -67,9 +67,9 @@ First, the function RecalList() can be used with the output of MFAssign() or MFA
 
 Up to ten of these series can be chosen to be used in the Recal() function, which recalibrates the spectrum. Choosing appropriate recalibrants is a critical aspect of recalibrating a mass spectrum effectively. After selecting the recalibrant series and entering them to the Recal() function, the parameter in Recal() most likely to be changed is “mzRange” which sets the recalibration segment length and has a default value of 30. If this value does not work a warning will be printed to the R console telling the user to increase the value. Formula extension via H2 and O homologous series uses the user defined recalibrant series as a base to find addtional recalibrants. It is limited to a user defined number of steps (+/- H2 or O) and generates a pool of potential recalibrants. Formula extension occurs between the assigned unambiguous molecular formulas and then each of the potential recalibrants are also check for a matching 13C peak. If there is a matching 13C then it is also added to the pool of recalibrants to be used. This pool of recalibrants are separated into each user defined segment and used to calculate a mass error correction term based on Kozhinov et al. (2013). These mass correction terms are then used to recalibrate each segment independently, removing the systematic error present in a mass spectrum.
 
-#Function Examples
+# Function Examples
 
-##Recommended Order of Operations
+## Recommended Order of Operations
 
 The functions will be described in the order that they are most effectively used. The functions do not have to be run in this order, but often the best results will likely be obtained in this way. A list of the functions in the recommended order is given below:
 
@@ -91,7 +91,7 @@ The functions will be described in the order that they are most effectively used
 
 The functions in the MFAssignR package were developed by adapting methods and algorithms from the peer reviewed literature. The following references were referred to in this document:
 
-##References
+## References
 
 Green, N. W. and Perdue, E. M.: Fast Graphically Inspired Algorithm for Assignment of Molecular Formulae in Ultrahigh Resolution Mass Spectrometry, Anal Chem, 87(10), 5086–5094, doi:10.1021/ac504166t, 2015.
 
