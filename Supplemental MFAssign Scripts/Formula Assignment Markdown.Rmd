@@ -96,7 +96,7 @@ Recalibrants <- RecalList(Unambig1)
 ##################################
 #Mass recalibration using the chosen series.
 
-Test <- Recal(Unambig1, peaks = Mono, isopeaks = Iso, mzRange = 50, mode = "neg", SN = SNRatio*KMDN, series1 = "O3_H_3", series2 = "O8_H_6", series3 = "O12_H_8", series4 = "O10_H_5", series5 = "O14_H_9", series6 = "O10_H_7", series7 = "O7_H_4", series8 = "O3_H_1", bin = 10, obs = 1, opt = 1) #Good parameters for the
+Test <- Recal(Unambig1, peaks = Mono, isopeaks = Iso, mzRange = 50, mode = "neg", SN = SNRatio*KMDN, series1 = "O3_H_3", series2 = "O8_H_6", series3 = "O12_H_8", series4 = "O10_H_5", series5 = "O14_H_9", series6 = "O10_H_7", series7 = "O7_H_4", series8 = "O3_H_1") #Good parameters for the
 
 
 Plot <- Test[["Plot"]]
