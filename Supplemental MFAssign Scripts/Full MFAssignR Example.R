@@ -55,7 +55,7 @@ check <- RecalList(Unambig1)
 #Qualitative check of recalibrant series and mass recalibration.
 
 Test <- Recal(df = Unambig1,peaks = Mono, isopeaks = Iso, mode = "neg", SN = 6*KMDN, mzRange = 50, series1 = "O8_H_9",
-              series2 = "O6_H_3", series3 = "O4_H_2", series4 = "O13_H_13", series5 = "O15_H_16",bin = 10, obs = 2)
+              series2 = "O6_H_3", series3 = "O4_H_2", series4 = "O13_H_13", series5 = "O15_H_16")
 
 Plot <- Test[["Plot"]]
 Plot      #This plot is slow to generate
