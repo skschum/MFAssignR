@@ -29,3 +29,11 @@ Package Updates
 - Additional controls were added to IsoFiltR() so now the user can set the matching error allowance for mono/iso pairs using the "Carberr" or "Sulferr" parameters. The maximum allowed 34S ratio can also be set by the user now using the "Sulfrat" parameter.
 - Internal change to MFAssign() and MFAssignCHO() now check the O/C and H/C ratios during formula extension, if they exceed the limits set by the user, the formula is discarded. This was done post formula extension in previous versions. 
 
+Version 1.0.0
+Please see the ReadMe for more information about changes to the code.
+- Improvements to formula extension methodology for improved formula assignment
+- Reworked and simplified recalibration in the Recal() function
+- Increased user control of "slice" in KMDNoise()
+- Improved isotope identification and assignment through changes in IsoFilter() and MFAssign()/MFAssignCHO()
+- Made the N3OS to 13C correction in MFAssign() optional
+
