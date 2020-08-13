@@ -1,9 +1,0 @@
-This version of the MFAssignR code is consistent with the publication in Environmental Research:
-Schum S.K., L. E. Brown, L. R. Mazzoleni, MFAssignR: Molecular Formula Assignment Software for 
-Ultrahigh Resolution Mass Spectrometry Analysis of Environmental Complex Mixtures, in press, 
-Environmental Research, 2020.
-
-This version also does not work in R versions 4.0.0 or greater due to changes in the underlying 
-base R functions.
-
-Nothing is here yet, but will be in the next couple days.
