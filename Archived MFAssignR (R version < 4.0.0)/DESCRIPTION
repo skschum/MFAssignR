@@ -17,7 +17,7 @@ Description: This package contains functions that can estimate
 License: GNU GPL-2
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.4.1)
+Depends: R (>= 3.4.1 & < 4.0.0)
 Imports: dplyr (>= 0.7.6),
          tidyr (>= 0.8.1),
          ggplot2 (>= 3.0.0),
