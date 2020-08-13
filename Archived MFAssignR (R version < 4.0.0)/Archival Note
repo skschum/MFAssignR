@@ -1,0 +1,15 @@
+This version of MFAssignR is the version described in the publication:
+
+Schum S.K., L. E. Brown, L. R. Mazzoleni, MFAssignR: Molecular Formula Assignment Software for Ultrahigh 
+Resolution Mass Spectrometry Analysis of Environmental Complex Mixtures, Revised and Re-Submitted, 
+Environmental Research, 2020.
+
+Further, this version does not work with R version >= 4.0.0, but does work with earlier versions.
+
+This version is being archived so that interested parties can look at the version that directly relates to
+the publication listed above, though newer versions are still well described by this publication as of
+August 2020.
+
+This version is still appropriate and functional if you are using a version of R < 4.0.0, but is missing
+some functionality of newer versions, namely additional halogens and the ability to handle a three-column
+data frame input.
