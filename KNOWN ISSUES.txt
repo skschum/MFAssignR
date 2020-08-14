@@ -7,5 +7,5 @@ Positive mode odd electron assignment (POEx) does not work yet.
 
 Only singly charged compounds can be assigned.
 
-
+8/14/20 - Archived version of MFAssignR can encounter issues if used with R versions >= 4.0.0, which is why it has been archived and a new version has been added to the repository.
 
