@@ -29,11 +29,23 @@ Package Updates
 - Additional controls were added to IsoFiltR() so now the user can set the matching error allowance for mono/iso pairs using the "Carberr" or "Sulferr" parameters. The maximum allowed 34S ratio can also be set by the user now using the "Sulfrat" parameter.
 - Internal change to MFAssign() and MFAssignCHO() now check the O/C and H/C ratios during formula extension, if they exceed the limits set by the user, the formula is discarded. This was done post formula extension in previous versions. 
 
-01/27/20 (Version 1.0.0)
+01/27/2020 (Version 1.0.0)
 Please see the ReadMe for more information about changes to the code.
 - Improvements to formula extension methodology for improved formula assignment
 - Reworked and simplified recalibration in the Recal() function
 - Increased user control of "slice" in KMDNoise()
 - Improved isotope identification and assignment through changes in IsoFilter() and MFAssign()/MFAssignCHO()
 - Made the N3OS to 13C correction in MFAssign() optional
+
+08/14/2020 (Version 1.0.1)
+- "Under the hood" changes to allow the package to work with the changes made in R version 4.0.0 and greater.
+- Previous version has been archived to create a record of the version of code described in the publication: 
+  Schum SK, LE Brown, LR Mazzoleni, MFAssignR: Molecular Formula Assignment Software for Ultrahigh Resolution Mass Spectrometry 
+  Analysis of Environmental Complex Mixtures, in press, Environmental Research, 2020.
+- New elements have been added for assignment, including 79Br, 81Br, and 126I.
+- All functions have been adjusted so that they can handle a two or three column data frame, allowing the user to assign molecular formulas to LC-MS data while retaining the retention time.
+- Made improvements to Recal() which allows it to avoid the problems associated with having "holes" in the calibration mass list, which caused errors previously.
+- Made improvements to FindCoreFormula() which improve the assignment coverage from the initial CHOFIT assignment, which improves the assignment of isolated peaks.
+- Made general improvements to IsoFiltR to ensure all appropriate peaks are retained.
+  
 
