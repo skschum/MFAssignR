@@ -49,6 +49,7 @@ Please see the ReadMe for more information about changes to the code.
 - Made general improvements to IsoFiltR to ensure all appropriate peaks are retained.
 
 08/17/2020 (Version 1.0.1)
-Fixed an error in IsoFiltR which caused two column data frames not to work properly. Now IsoFiltR should work for both 2 and 3 column data frames as intended.
+-Fixed an error in IsoFiltR which caused two column data frames not to work properly. Now IsoFiltR should work for both 2 and 3 column data frames as intended.
+-Fixed a error that caused MFAssignCHO and MFAssignCHO_RMD to run slower than they should.
   
 
