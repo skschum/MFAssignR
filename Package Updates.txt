@@ -54,5 +54,6 @@ Please see the ReadMe for more information about changes to the code.
 
 08/21/2020 (Version 1.0.1)
 - Fixed an error in IsoFiltR which was causing part of the "Iso" output to be populated with NAs.
+- Fixed an error in MFAssign and MFAssign_RMD that incorrectly classified a single formula as ambiguous, when it was unambiguous.
   
 
