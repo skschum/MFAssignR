@@ -1,5 +1,11 @@
 # MFAssignR
 
+## Additional Documentation
+
+This package is the focus of a peer-reviewed journal article in Environmental Research. The citation is:
+Schum S.K., Brown L.E., Mazzoleni L.R., MFAssignR: Molecular formula assignment software for ultrahigh resolution mass spectrometry analysis of environmental complex mixtures, Environmental Research, https://doi.org/10.1016/j.envres.2020.11011, volume 191, (2020). 
+
+If you use this package please refer to this publication as well.
 
 ## Package Overview and References
 
