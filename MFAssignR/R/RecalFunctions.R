@@ -581,6 +581,7 @@ names(isopeaks2)[2] <- "iso_abund"
 names(isopeaks2)[1] <- "iso_mass"
 names(isopeaks2)[4] <- "tag"
 names(RecalOut)[1] <- "abundance"
+names(RecalOut)[2] <- "exp_mass"
 }
 
 if(cols == 2){
@@ -592,6 +593,8 @@ if(cols == 2){
   names(isopeaks2)[1] <- "iso_mass"
   names(isopeaks2)[3] <- "tag"
   names(RecalOut)[1] <- "abundance"
+  names(RecalOut)[2] <- "exp_mass"
+
 }
 
 Output <- list(Plot = MZ, Mono = peaks, Iso = isopeaks2, RecalList = RecalOut)
