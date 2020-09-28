@@ -2504,6 +2504,9 @@ records <- vector("list")
   names(unassigned)[2] <- "mass"
 
   ##############################################
+
+  Ambigout <- Ambigout[Ambigout$group != "Dummy",]
+  Unambig <- Unambig[Unambig$Tag != "Ambiguous",]
   PD <- rbind(Ambigout, Unambig)
 
 
@@ -2646,7 +2649,7 @@ records <- vector("list")
 
   #.rs.restartR()
 
-  Ambigout <- Ambigout[Ambigout$group != "Dummy",]
+  #Ambigout <- Ambigout[Ambigout$group != "Dummy",]
   ##Final Output list
   output <- list(Unambig = Unambig, Ambig = Ambigout, None = unassigned, MSAssign = MZ,
                  Error = Error, MSgroups = MZgroups, VK = VK)
