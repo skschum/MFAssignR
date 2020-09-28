@@ -112,6 +112,8 @@ isopeaks <- isopeaks[c(2,1,3,4)]
 #Merges recalibrant list to df in order to determine which recalibrants are in the data frame.
 RecalList2 <- merge(df, RecalList, by.x = "series", by.y = "series")
 
+
+#cehck <- Iso %>% filter(!is.na(exp_mass))
 ##########################################
 #Monoisotopic Peaks
 #Prepares the recalibrant masses for use in recalibration steps.
@@ -578,7 +580,7 @@ isopeaks2 <- isopeaks2[c(2,1,3,4)]
 names(isopeaks2)[2] <- "iso_abund"
 names(isopeaks2)[1] <- "iso_mass"
 names(isopeaks2)[4] <- "tag"
-names(RecalOut)[1] <- "exp_mass"
+names(RecalOut)[1] <- "abundance"
 }
 
 if(cols == 2){
@@ -589,7 +591,7 @@ if(cols == 2){
   names(isopeaks2)[2] <- "iso_abund"
   names(isopeaks2)[1] <- "iso_mass"
   names(isopeaks2)[3] <- "tag"
-  names(RecalOut)[1] <- "exp_mass"
+  names(RecalOut)[1] <- "abundance"
 }
 
 Output <- list(Plot = MZ, Mono = peaks, Iso = isopeaks2, RecalList = RecalOut)
