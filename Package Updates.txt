@@ -60,5 +60,8 @@ Please see the ReadMe for more information about changes to the code.
 - Fixed a mis-labeled column in the "RecalList" output of the Recal function. Now it will properly be labeled as "abundance" instead of "exp_mass"
 - Also changed "Exp_mass" to "exp_mass" in the "RecalList" output.
 - Fixed an issue in MFAssign and MFAssign_RMD where the output plots would indicate the presence of a single ambiguous formula, when none were actually present.
+
+02/09/2021 (Version 1.0.1)
+- Fixed a problem with IsoFiltR() that led to an error when no matches of a specific isotope pair were found.
   
 
