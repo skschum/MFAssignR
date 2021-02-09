@@ -313,16 +313,21 @@ IsoFiltR <- function(peaks, SN = 0, Carbrat = 60, Sulfrat = 30, Sulferr = 5, Car
   MonoOutS_final <- unique(MonoOutS_final)
   ######End of Sulfur Section
   #########################
-
+  Dummy2 <- data.frame(Exp_mass = -42, Abundance = -42, RT = 0) #12/29/20
   ##############################################
   IsoOutC1_final <- unique(IsoOutC1_final)
+  IsoOutC1_final <- rbind(IsoOutC1_final, Dummy2)#12/29/20
   IsoOutC1_final$Tag <- "C13"
   IsoOutC2_final <- unique(IsoOutC2_final)
+  IsoOutC2_final <- rbind(IsoOutC2_final, Dummy2)#12/29/20
   IsoOutC2_final$Tag <- "2C13"
   MonoOutC_final <- unique(MonoOutC_final)
+  MonoOutC_final <- rbind(MonoOutC_final, Dummy2)#12/29/20
   MonoOutC_final$Tag <- "C"
 
+  MonoOutS_final <- rbind(MonoOutS_final, Dummy2)#12/29/20
   MonoOutS_final$Tag <- "S"
+  IsoOutS_final <- rbind(IsoOutS_final, Dummy2)#12/29/20
   IsoOutS_final$Tag <- "S34"
 
   ##Sulfur Check 6/24/19
