@@ -2314,8 +2314,9 @@ records <- vector("list")
 
   Unambig <- Unambig[Unambig$Exp_mass >= 16,]
   Unambig[is.na(Unambig)] <- 0
+  Ambigout <- Ambigout[Ambigout$Exp_mass >= 16,]
   Ambigout[is.na(Ambigout)] <- 0
-  Ambigout <- Ambigout[Ambigout$Exp_mass >0,]
+
   records1[is.na(records1)] <- 0
 
 

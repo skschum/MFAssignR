@@ -1586,7 +1586,14 @@ MFAssignCHO_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=
       Unambig <- rbind(Unambig, Unambigout)
     }
 
-    Unambig <- Unambig[!is.na(Unambig$N15),]
+    Unambig <- Unambig[Unambig$Exp_mass >= 16,]
+    Unambig[is.na(Unambig)] <- 0
+    Ambigout <- Ambigout[Ambigout$Exp_mass >= 16,]
+    Ambigout[is.na(Ambigout)] <- 0
+
+    records1[is.na(records1)] <- 0
+
+    #Unambig <- Unambig[!is.na(Unambig$N15),]
     # Unambig$theor_mass1 <- Unambig$theor_mass1 - Unambig$POE * 2.0156500638+
     #   Unambig$NOE * 2.0156500638 + Unambig$NOE * electron - Unambig$POE * electron
     #Everything is good to this point
