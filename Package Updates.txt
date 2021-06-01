@@ -63,5 +63,8 @@ Please see the ReadMe for more information about changes to the code.
 
 02/09/2021 (Version 1.0.1)
 - Fixed a problem with IsoFiltR() that led to an error when no matches of a specific isotope pair were found.
+
+06/01/2021 (Version 1.0.1)
+- Fixed a problem where NMScut = "off" could cause an error in the molecular formula assignment functions.
   
 
