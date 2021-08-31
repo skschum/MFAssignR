@@ -571,10 +571,13 @@ records <- vector("list")
 
   records1$mode <- ionMode
 
-  df1 <- records1[records1$mode == "pos" & records1$M > 0 & records1$POE == 0,]
+  df1 <- records1[records1$mode == "pos" & records1$M > 0 & records1$POE == 0 & records1$NH4 == 0,]
   df1$Neutral_mass <- df1$Exp_mass - df1$M * 22.989221
 
-  df2 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 0,]
+  df1x <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 0 & records1$NH4 == 1,]
+  df1x$Neutral_mass <- df1x$Exp_mass - df1x$NH4 * 18.033823
+
+  df2 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 0& records1$NH4 == 0,]
   df2$Neutral_mass <- df2$Exp_mass - 1.00727645216
 
   df3 <- records1[records1$mode == "neg" & records1$NOE == 0,]
@@ -583,23 +586,23 @@ records <- vector("list")
   df4 <- records1[records1$mode == "neg" & records1$NOE == 1,]
   df4$Neutral_mass <- df4$Exp_mass - 0.000548597
 
-  df5 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 1,]
+  df5 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 1& records1$NH4 == 0,]
   df5$Neutral_mass <- df5$Exp_mass + 0.000548597
 
-  records1 <- rbind(df1, df2, df3, df4, df5)
+  records1 <- rbind(df1, df1x, df2, df3, df4, df5)
 
   records1 <- records1[-29]   ##CHECK THIS 6/2/20
 
   records1 <- dplyr::mutate(records1, O_C = O/(C+E), H_C =H/(C+E),
 
-                            theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                              Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
-                              D * EM("D") + M * EM("M") + NH4 * EM("NH4") + NOE * electron - POE * electron + Br * EM2("Br79") +
+                            theor_mass1 = EM2("C") * C + EM2("H") * H + EM2("O") * O + N * EM2("N14") + S * EM2("S") + P * EM2("P31") +
+                              Cl * EM2("Cl35") + Fl * EM2("Fl19") + E * EM2("E") + S34 * EM2("S34") + Cl37 * EM2("Cl37m") + N15 * EM2("N15H") +
+                              D * EM2("D") + M * EM2("M") + NH4 * EM2("NH4+") + NOE * electron - POE * electron + Br * EM2("Br79") +
                               Br81 * EM2("Br81m") + I * EM2("I127"),
 
-                            theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                              Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
-                              D * EM("D") + Br * EM2("Br79") +
+                            theor_mass = EM2("C") * C + EM2("H") * H + EM2("O") * O + N * EM2("N14") + S * EM2("S") + P * EM2("P31") +
+                              Cl * EM2("Cl35") + Fl * EM2("Fl19") + E * EM2("E") + S34 * EM2("S34") + Cl37 * EM2("Cl37m") + N15 * EM2("N15H") +
+                              D * EM2("D") + Br * EM2("Br79") +
                               Br81 * EM2("Br81m") + I * EM2("I127"), #
 
                             C = C + E,
@@ -1042,10 +1045,13 @@ records <- vector("list")
 
 
 
-  df1 <- records1[records1$mode == "pos" & records1$M > 0 & records1$POE == 0,]
+  df1 <- records1[records1$mode == "pos" & records1$M > 0 & records1$POE == 0 & records1$NH4 == 0,]
   df1$Neutral_mass <- df1$Exp_mass - df1$M * 22.989221
 
-  df2 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 0,]
+  df1x <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 0 & records1$NH4 == 1,]
+  df1x$Neutral_mass <- df1x$Exp_mass - df1x$NH4 * 18.033823
+
+  df2 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 0& records1$NH4 == 0,]
   df2$Neutral_mass <- df2$Exp_mass - 1.00727645216
 
   df3 <- records1[records1$mode == "neg" & records1$NOE == 0,]
@@ -1054,10 +1060,10 @@ records <- vector("list")
   df4 <- records1[records1$mode == "neg" & records1$NOE == 1,]
   df4$Neutral_mass <- df4$Exp_mass - 0.000548597
 
-  df5 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 1,]
+  df5 <- records1[records1$mode == "pos" & records1$M == 0 & records1$POE == 1& records1$NH4 == 0,]
   df5$Neutral_mass <- df5$Exp_mass + 0.000548597
 
-  records1 <- rbind(df1, df2, df3, df4, df5)
+  records1 <- rbind(df1, df1x, df2, df3, df4, df5)
 
   records1 <- records1[-c(24)]  ##CHECK THIS 6/2/20
 
@@ -1070,16 +1076,16 @@ records <- vector("list")
                             #Neutral_mass = Neutral_mass + POE * (2.0156500638/2)- NOE * (2.0156500638/2),
 
 
-                            theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") + S * EM("S") + P * EM("P31") +
-                              Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E") + S34 * EM("S34") + Cl37 * EM("Cl37m") + N15 * EM("N15H") +
-                              D * EM("D") + M * EM("M") + NH4 * EM("NH4") + NOE * electron - POE * electron +
+                            theor_mass1 = EM2("C") * C + EM2("H") * H + EM2("O") * O + N * EM2("N14") + S * EM2("S") + P * EM2("P31") +
+                              Cl * EM2("Cl35") + Fl * EM2("Fl19") + E * EM2("E") + S34 * EM2("S34") + Cl37 * EM2("Cl37m") + N15 * EM2("N15H") +
+                              D * EM2("D") + M * EM2("M") + NH4 * EM2("NH4+") + NOE * electron - POE * electron +
                               Br * EM2("Br79") + Br81 * EM2("Br81m") + I * EM2("I127"),
 
-                            theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
-                              S * EM("S") + P * EM("P31") + Fl * EM("Fl19") +
-                              Cl * EM("Cl35") +  E * EM("E2") + S34 * EM("S34") + Cl37 * EM("Cl37m") +
-                              N15 * EM("N15H") +
-                              D * EM("D")+
+                            theor_mass = EM2("C") * C + EM2("H") * H + EM2("O") * O + N * EM2("N14") +
+                              S * EM2("S") + P * EM2("P31") + Fl * EM2("Fl19") +
+                              Cl * EM2("Cl35") +  E * EM2("E2") + S34 * EM2("S34") + Cl37 * EM2("Cl37m") +
+                              N15 * EM2("N15H") +
+                              D * EM2("D")+
                               Br * EM2("Br79") + Br81 * EM2("Br81m") + I * EM2("I127"),
 
                             #C = C + E, #It is added back so that formulas are more accurate.
@@ -1781,10 +1787,13 @@ records <- vector("list")
   records1X$mode <- ionMode
 
 
-  df1 <- records1X[records1X$mode == "pos" & records1X$M > 0 & records1X$POE == 0,]
+  df1 <- records1X[records1X$mode == "pos" & records1X$M > 0 & records1X$POE == 0 & records1X$NH4 == 0,]
   df1$Neutral_mass <- df1$Exp_mass - df1$M * 22.989221
 
-  df2 <- records1X[records1X$mode == "pos" & records1X$M == 0 & records1X$POE == 0,]
+  df1x <- records1X[records1X$mode == "pos" & records1X$M == 0 & records1X$POE == 0 & records1X$NH4 == 1,]
+  df1x$Neutral_mass <- df1x$Exp_mass - df1x$NH4 * 18.033823
+
+  df2 <- records1X[records1X$mode == "pos" & records1X$M == 0 & records1X$POE == 0& records1X$NH4 == 0,]
   df2$Neutral_mass <- df2$Exp_mass - 1.00727645216
 
   df3 <- records1X[records1X$mode == "neg" & records1X$NOE == 0,]
@@ -1793,10 +1802,10 @@ records <- vector("list")
   df4 <- records1X[records1X$mode == "neg" & records1X$NOE == 1,]
   df4$Neutral_mass <- df4$Exp_mass - 0.000548597
 
-  df5 <- records1X[records1X$mode == "pos" & records1X$M == 0 & records1X$POE == 1,]
+  df5 <- records1X[records1X$mode == "pos" & records1X$M == 0 & records1X$POE == 1& records1X$NH4 == 0,]
   df5$Neutral_mass <- df5$Exp_mass + 0.000548597
 
-  records1X <- rbind(df1, df2, df3, df4, df5)
+  records1X <- rbind(df1, df1x, df2, df3, df4, df5)
 
 
   records1X <- records1X[-c(24)]  ##CHECK THIS
@@ -1809,19 +1818,19 @@ records <- vector("list")
                              #Neutral_mass = Neutral_mass + POE * (2.0156500638/2)- NOE * (2.0156500638/2),
 
 
-                             theor_mass1 = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
-                               S * EM("S") + P * EM("P31") +
-                               Cl * EM("Cl35") + Fl * EM("Fl19") + E * EM("E2") + S34 * EM("S34") +
-                               Cl37 * EM("Cl37m") + N15 * EM("N15H") + Br * EM2("Br79") + Br81 * EM2("Br81m") +
+                             theor_mass1 = EM2("C") * C + EM2("H") * H + EM2("O") * O + N * EM2("N14") +
+                               S * EM2("S") + P * EM2("P31") +
+                               Cl * EM2("Cl35") + Fl * EM2("Fl19") + E * EM2("E2") + S34 * EM2("S34") +
+                               Cl37 * EM2("Cl37m") + N15 * EM2("N15H") + Br * EM2("Br79") + Br81 * EM2("Br81m") +
                                I * EM2("I127") +
-                               D * EM("D") + M * EM("M") + NH4 * EM("NH4") - POE * electron + NOE*electron,
+                               D * EM2("D") + M * EM2("M") + NH4 * EM2("NH4") - POE * electron + NOE*electron,
 
-                             theor_mass = EM("C") * C + EM("H") * H + EM("O") * O + N * EM("N14") +
-                               S * EM("S") + P * EM("P31") + Fl * EM("Fl19") +Br * EM2("Br79") + Br81 * EM2("Br81m") +
+                             theor_mass = EM2("C") * C + EM2("H") * H + EM2("O") * O + N * EM2("N14") +
+                               S * EM2("S") + P * EM2("P31") + Fl * EM2("Fl19") +Br * EM2("Br79") + Br81 * EM2("Br81m") +
                                I * EM2("I127") +
-                               Cl * EM("Cl35") +  E * EM("E2") + S34 * EM("S34") + Cl37 * EM("Cl37m") +
-                               N15 * EM("N15H") +
-                               D * EM("D"),
+                               Cl * EM2("Cl35") +  E * EM2("E2") + S34 * EM2("S34") + Cl37 * EM2("Cl37m") +
+                               N15 * EM2("N15H") +
+                               D * EM2("D"),
 
                              #C = C + E, #It is added back so that formulas are more accurate.
 
@@ -2316,7 +2325,6 @@ records <- vector("list")
   Unambig[is.na(Unambig)] <- 0
   Ambigout <- Ambigout[Ambigout$Exp_mass >= 16,]
   Ambigout[is.na(Ambigout)] <- 0
-
   records1[is.na(records1)] <- 0
 
 
