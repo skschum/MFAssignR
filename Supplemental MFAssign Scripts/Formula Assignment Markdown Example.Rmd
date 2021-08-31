@@ -1,0 +1,214 @@
+---
+title: "Molecular Formula Assignment with MFAssignR"
+author: "Simeon Schum"
+date: "December 7, 2018"
+output: html_document
+params: 
+  data: x
+---
+
+
+### Installing Packages
+This section only needs to be run once. When the packages are all installed you can comment out (#) all these lines.
+
+```{r, echo = FALSE, message = FALSE, warning =FALSE}
+#Necessary in General
+install.packages("rmarkdown")
+install.packages("devtools")
+
+#Necessary for MFAssignR
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("ggplot2")
+install.packages("colorRamps")
+
+#How to install MFAssignR from a directory on your computer
+setwd("C:/Working Directory/MFAssignR is in")  #This is the folder you have saved MFAssignR in
+devtools::install("MFAssignR")
+
+```
+
+### Formula Assignment Markdown
+Data loading is shown in this box.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#Loading the necessary packages to do this formula assignment
+library(MFAssignR)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+
+
+#The following two lines show how to set the working directory, and load the datafile
+#They are just placeholder names and can be changed  as necessary for your work
+setwd("C:/Data Directory")
+
+
+
+#For the purposes of testing, I am just using the included mass list, which is was ionized by negative ESI
+#Data <- Raw_Neg_ML  #This is the test data set that is built into the package
+
+Data <- read.csv("DataSet.csv")
+#The data set must be either 2 or 3 columns with the first column being ion masses, the second being abundance, and the optional third column being whatever you want (typically it is for retention time in LC analytical runs)
+
+#This value allows you to change the signal-to-noise ratio that will be multiplied by the estimated noise to determing the noise removal threshold.
+SNRatio <- 6
+print("SNRatio")
+SNRatio
+```
+
+
+### Signal To Noise Assessment
+The use of the KMDNoise and SNplot functions
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+#This is the signal to noise assessment section of the R markdown, demonstrating how to use the function KMDNoise()
+
+Noise <-KMDNoise(Data, upper.y = 0.3, lower.y = 0.05)
+#The upper.y and lower.y parameters can be changed in order to move/change size of the noise finding box.
+#You want the box to be surrounding low intensity peaks (blue)
+
+#This part shows how to extract the results  of the KMDNoise() function so that they can be used
+Noise[["KMD"]]  #Plot showing the signal to noise estimation plot
+KMDN <-Noise[["Noise"]]    #Saving the estimated noise as a global variable in the environment
+KMDN         #Printing the noise so that you can see it in the final report.
+
+#This plot is used just to look at the noise threshold relative to the mass peaks and their intensities.
+SNplot(Data, cut = SNRatio * KMDN, mass = 319.1, window.x = 0.2, window.y = 10) 
+print("Estimated Noise")
+KMDN         #Printing the noise so that you can see it in the final report.
+```
+
+### Isotope Identification
+The use of the IsoFiltR function.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+#This section shows the usage of the IsoFiltR() function, which separates the single raw mass list that you should be using into a list of likely monoisotopic masses ("Mono") and likely polyisotopic masses ("Iso")
+
+Isotopes <- IsoFiltR(Data, SN = SNRatio * KMDN, Sulferr = 5)
+
+
+#The following two lines simply extract the two resultant mass lists from IsoFiltR so that they can be used in later steps.
+Mono <- Isotopes[["Mono"]]
+Iso <- Isotopes[["Iso"]]
+
+S34 <- Iso %>% filter(tag == "S34")
+
+```
+
+### Prelim Assignment
+The use of the MFAssignCHO_RMD function. This only assigns C, H, O containing formulas, which are typically better for recalibration.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
+#Be sure this is updated based on what you want to be assigning
+
+#.rs.restartR()
+
+#The following line shows how to use the CHO only version of formula assignment. It is typically done in order to find molecular formula series to be used in recalibration
+
+Assign <- MFAssignCHO_RMD(Mono, Iso, ionMode = "neg", lowMW =50, highMW = 1000, ppm_err = 3, H_Cmin = 0.3, Omin = 1,
+                      HetCut = "off", NMScut = "on", SN = SNRatio*KMDN)   #Standard parameters for negative mode
+```
+
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#The following lines extract the outputs  from the MFAssignCHO_RMD() function, there are 4 plots and 3 dataframes.
+
+Unambig1 <- Assign[["Unambig"]]  #Unambiguous molecular formula assignments
+Ambig1 <- Assign[["Ambig"]]      #Ambiguous moleccular formula assignments
+Unassigned <- Assign[["None"]]   #Unassigned masses
+Plot1 <- Assign[["MSAssign"]]    #Mass spectrum showing which peaks are assigned and unassigned in the spectru 
+Plot2 <- Assign[["Error"]]       #Plot showing the error trend relative to mass for assignments
+Plot3 <- Assign[["MSgroups"]]    #Mass spectrum showing the assigned molecular formulas
+Plot4 <- Assign[["VK"]]          #O/C vs H/C plot showing the assigned molecular formulas
+Plot1
+Plot2
+Plot3
+Plot4
+
+#Doing this just clears up some of the memory to keep the markdown running as fast as possible
+rm(Plot1)
+rm(Plot2)
+rm(Plot3)
+rm(Plot4)
+rm(Unassigned)
+rm(Ambig1)
+gc()
+```
+
+### Recalibration
+This shows the use of recalibration functions. Getting the recalibration right is about the hardest part of formula assignment.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#This is the section that requires the most user input. You should run through a representative sample first so that you know what recalibrants you are planning on using, and then set those recalibrants in the function
+
+#This function provides you with a list of possible recalibrant series. See the ReadMe for more information about choosing recalibrants.
+
+#Unambig1 <- Unambig1[order(Unambig1$AE_ppm),]
+#Unambig1 <- Unambig1 %>% distinct(formula, .keep_all = TRUE)
+
+check <- RecalList(Unambig1)
+
+##################################
+#Qualitative check of recalibrant series and mass recalibration.
+
+#The following lines show the use of the Recal() function. See the ReadMe for more information about usage of this funtion.
+Test <- Recal(Unambig1, peaks = Mono, isopeaks = Iso, mzRange = 30, mode = "neg", SN = SNRatio*KMDN, series1 = "O10_H_10", series2 = "O5_H_6", series3 = "O7_H_8", series4 = "O8_H_8", series5 = "O4_H_2", series6 = "O10_H_9")
+
+
+Plot <- Test[["Plot"]]
+Plot      #This plot is slow to generate
+Mono2 <- Test[["Mono"]]   #Recalibrated monoisotopic mass list
+Iso2 <- Test[["Iso"]]     #Recalibrated isotopic mass lists
+List <- Test[["RecalList"]]
+print("mzRange")
+30
+```
+
+### Full Assignment
+This is the use of MFAssign_RMD, which is where the heteroatoms are enabled so you can assign more complex formulas.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
+#Be sure this is updated based on what you want to be assigning
+
+#.rs.restartR()
+
+#Use of MFAssign_RMD() for molecualr formula assignment.
+
+Assign <- MFAssign_RMD(Mono2, Iso2, ionMode = "neg", lowMW =50, highMW = 1000, Sx = 1, Nx = 3, ppm_err = 3, H_Cmin = 0.3, Omin = 1, SulfCheck = "on",
+                      HetCut = "off", NMScut = "on", SN = SNRatio*KMDN, MSMS = "on", Ambig = "on")   #Standard parameters for negative mode
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+#Extraction of data from the MFAssign_RMD() function. It has the same format as the MFAssignCHO_RMD() function.
+Unambig2 <- Assign[["Unambig"]]
+Ambig2 <- Assign[["Ambig"]]
+Unassigned2 <- Assign[["None"]]
+Plot1 <- Assign[["MSAssign"]]
+Plot2 <- Assign[["Error"]]
+Plot3 <- Assign[["MSgroups"]]
+Plot4 <- Assign[["VK"]]
+Plot1
+Plot2
+Plot3
+Plot4
+
+
+
+setwd("C:/Data Directory")
+#Saving the data to an external .csv file for further analysis and interpretation.
+write.csv(Unambig2, "Unambiguous Formulas.csv")
+write.csv(Ambig2, "Ambiguous Formulas.csv")
+#write.csv(List, paste0("Assigned Formulas/", file_name, "_RC.csv"), row.names=FALSE, na="")
+write.csv(Unassigned2, "Unassigned Masses.csv")
+#write.csv(List, "Peat_negESI_100-600_RL.csv")
+
+```
+
+
+
