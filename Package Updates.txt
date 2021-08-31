@@ -69,3 +69,5 @@ Please see the ReadMe for more information about changes to the code.
   
 08/31/2021 (Version 1.0.1)
 - Fixed a problem where fluorine and NH4+ adducts did not assign correctly.
+- "Formula Assignment Markdown Example.RMD" was added to Supplemental MFAssign Scripts. This markdown provides an example of molecular formula assignment
+  using MFAssignR and the packages that need to be installed to use MFAssignR.
