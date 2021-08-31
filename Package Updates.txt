@@ -67,4 +67,5 @@ Please see the ReadMe for more information about changes to the code.
 06/01/2021 (Version 1.0.1)
 - Fixed a problem where NMScut = "off" could cause an error in the molecular formula assignment functions.
   
-
+08/31/2021 (Version 1.0.1)
+- Fixed a problem where fluorine and NH4+ adducts did not assign correctly.
