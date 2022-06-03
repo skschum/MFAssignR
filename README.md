@@ -1,5 +1,7 @@
 # MFAssignR
 
+## Please note that the newest version of R (4.2.0) has introduced errors in MFAssignR. I am working to update MFAssignR to account for these changes as soon as possible, but in the meantime you can use R version 4.1.1 (the most recent version I have verified works). 6/3/2022
+
 ## Additional Documentation
 
 This package is the focus of a peer-reviewed journal article in Environmental Research. The citation is:
