@@ -71,3 +71,7 @@ Please see the ReadMe for more information about changes to the code.
 - Fixed a problem where fluorine and NH4+ adducts did not assign correctly.
 - "Formula Assignment Markdown Example.RMD" was added to Supplemental MFAssign Scripts. This markdown provides an example of molecular formula assignment
   using MFAssignR and the packages that need to be installed to use MFAssignR.
+  
+06/16/2022 (Version 1.0.2)
+- Fixed issues that caused MFAssign, MFAssign_RMD, MFAssignCHO, and MFAssignCHO_RMD to have errors in R version 4.2.0.
+- Fixed a minor issue that caused formula groups to be represented on the VK and MZGroups plots that were not present in the actual dataset. This addresses a purely visual issue and has no other impacts on the data output.
