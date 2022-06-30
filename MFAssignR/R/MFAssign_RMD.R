@@ -192,11 +192,11 @@ MFAssign_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=100
   #############
   #LCMS adjustment
   cols <- ncol(peaks)
-  if(isopeaks != "none") {cols2 <- ncol(isopeaks)} else{cols2 <- 0}
+  ifelse(isopeaks != "none", cols2 <- ncol(isopeaks), cols2 <- 0)
   if(cols == 3){
     if(cols == 3) {monoSave <- peaks[c(1,2,3)]}
-    if(cols2 == 4 & isopeaks != "none") {isoSave <- isopeaks[c(1,2,3)]}
-    if(cols2 == 0 & isopeaks == "none") {isoSave <- data.frame(mass = -42, abund = -42, RT = -42)}
+    ifelse(cols2 == 4 & isopeaks != "none",isoSave <- isopeaks[c(1,2,3)], print("No Iso List Included"))
+    ifelse(cols2 == 0 & isopeaks == "none",isoSave <- data.frame(mass = -42, abund = -42, RT = -42), isoSave <- isoSave)
     names(isoSave)[1] <- "exp_mass"
     names(isoSave)[2] <- "abundance"
     names(isoSave)[3] <- "RT"
@@ -214,7 +214,7 @@ MFAssign_RMD <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=100
   peaks <- peaks[peaks$mass >= lowMW,]
   peaks <- peaks[peaks$mass <= highMW,]
 
-  isopeaks2 <- if(isopeaks != "none") isopeaks else data.frame(x=10^9,y=0,Tag = 0)
+  ifelse(isopeaks != "none", isopeaks2 <- isopeaks, isopeaks2 <- data.frame(x=0,y=0,Tag=0))
 
   if(cols2 == 4){isopeaks2 <- isopeaks2[c(2,1,4)]}  #LC Change
   if(cols2 == 3){ isopeaks2 <- isopeaks2[c(2,1,3)]} #LC Change
@@ -690,7 +690,11 @@ records <- vector("list")
   #Sulf <- records1[records1$S == 1,]
   ##################
   ###S34 isotope check QA
-  if(isopeaks != "none" & SulfCheck == "on"){
+  check <-0
+  ifelse(isopeaks != "none" , check <- 1, print(""))
+  #ifelse(cols2 == 4 & isopeaks != "none",isoSave <- isopeaks[c(1,2,3)], print("No Iso List Included"))
+
+  if(check == 1 & SulfCheck == "on"){
     #The next line was changed for the new isotoping
     SIso <- isopeaks2[isopeaks2$Tag == "S34"|isopeaks2$Tag == "C13_S34"|isopeaks2$Tag == "2C13_S34",]
     SIso <- unlist(SIso[2])
@@ -2517,8 +2521,6 @@ records <- vector("list")
   Ambigout <- Ambigout[Ambigout$group != "Dummy",]
   Unambig <- Unambig[Unambig$Tag != "Ambiguous",]
   PD <- rbind(Ambigout, Unambig)
-
-
   PDG <- subset( PD, group == "CHO"|group == "CHNO"|group == "CHOS"|group == "CHNOS"|group == "CH"|group == "CHN")
   PDB <- subset( PD, group != "CHO"&group != "CHNO"&group != "CHOS"&group != "CHNOS"&group != "CH"&group != "CHN")
   PDBdummy <- data.frame(Exp_mass = 1)
@@ -2531,6 +2533,19 @@ records <- vector("list")
   records1 <- dplyr::distinct(records1, Test, .keep_all = TRUE)
   unassigned <- unassigned[unassigned$mass > 0,]
 
+
+  ##########Palettes for plots
+  group_colors <- data.frame(group = c("CHO", "CHNO", "CHOS", "CHNOS", "CH", "CHN", "Other"),
+                             color = c("green", "blue", "red", "purple", "gold", "cyan", "grey67"))
+
+
+
+  form_group <- data.frame(group = unique(PD$Tag2))
+
+  form_palette <- merge(form_group, group_colors, by.x = "group", by.y = "group")
+  form_palette <- setNames(form_palette$color, form_palette$group)
+  #print(form_palette)
+  ###############
 
   MZ<-ggplot2::ggplot() + ggplot2::geom_segment(data=records1, size=0.7,ggplot2::aes_string(x = "Exp_mass", xend = "Exp_mass", y = 0, yend = "RA"), color = "green")+
     ggplot2::geom_segment(data=records1, size=0.7,ggplot2::aes_string(x = "C13_mass", xend = "C13_mass", y = 0, yend = "C13_Abund"), color = "blue")+
@@ -2559,8 +2574,7 @@ records <- vector("list")
 
   MZgroups<-ggplot2::ggplot() + ggplot2::geom_segment(data=PD, size=0.7,ggplot2::aes_string(x = "Exp_mass", xend = "Exp_mass", y = 0, yend = "RA", color = "Tag2"))+
     ggplot2::facet_wrap(~Tag, ncol = 1, scales = 'free_y')+
-    ggplot2::scale_colour_manual(name = "Groups", values = c(CHO = "green", CHNO = "blue", CHOS = "red", CHNOS = "purple",
-                                                             CH = "gold", CHN = "cyan", Other = "grey67")) +
+    ggplot2::scale_colour_manual(name = "Groups", values = form_palette) +
     ggplot2::theme_bw()+ggplot2::labs(x = "Ion Mass", y = "Abundance", title = "Assignment Mass Spectrum", color = "DBE")+
     ggplot2::theme(axis.title=ggplot2::element_text(size = 15, face = "bold"), strip.text=ggplot2::element_text(size=15,face="bold"),
                    axis.text=ggplot2::element_text(size=15, face = "bold"), legend.title=ggplot2::element_text(face="bold", size = 12),
@@ -2571,8 +2585,7 @@ records <- vector("list")
   VK <- ggplot2::ggplot() + ggplot2::geom_point(data=PD, ggplot2::aes_string(x = "O_C", y = "H_C", color = "Tag2"), alpha = 1/3) +
     ggplot2::facet_wrap(~Tag, ncol = 2)+
     #ggplot2::coord_cartesian(xlim = c(min(PD$O_C), max(PD$O_C), ylim = c(min(PD$H_C), max(PD$H_C)))) +
-    ggplot2::scale_colour_manual(name = "Groups", values = c(CHO = "green", CHNO = "blue", CHOS = "red", CHNOS = "purple",
-                                                             CH = "gold", CHN = "cyan", Other = "grey67")) +
+    ggplot2::scale_colour_manual(name = "Groups", values = form_palette) +
     ggplot2::labs(x = "Oxygen-to-Carbon Ratio", y = "Hydrogen-to-Carbon Ratio", color = "Groups", title = "van Krevelen Plot") + ggplot2::theme_bw() +
     ggplot2::theme(axis.title=ggplot2::element_text(size = 15, face = "bold"), strip.text=ggplot2::element_text(size=15,face="bold"),
                    axis.text=ggplot2::element_text(size=15, face = "bold"), legend.title=ggplot2::element_text(face="bold", size = 11),
