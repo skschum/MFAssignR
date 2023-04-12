@@ -200,15 +200,18 @@ MFAssignCHO <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000
 
     Test <-  dplyr::group_by(peaks, KMDTest, zstar)
     Test <- dplyr::mutate(Test, CH2_num = round(mass - min(mass))/14)
-    peaksend <- dplyr::filter(Test, CH2_num !=0 & CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+1)&
-                                CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+3))
+    peaks1 <- dplyr::filter(Test, CH2_num == 0)
+    #peaks2 is just a dataframe to pull peaks3 and peaks4 from, not for additional usage
+    peaks2 <- dplyr::filter(Test, (CH2_num != 0 & CH2_num!=(min(CH2_num)+1)) == TRUE)
+    peaks3 <- dplyr::filter(peaks2, CH2_num == min(CH2_num))
+    peaks4 <- dplyr::filter(peaks2, (CH2_num==(min(CH2_num)+2)))
 
-    names(peaksend)[1] <- "RA"
-    names(peaksend)[2] <- "Exp_mass"
-    peaksend <- peaksend[c(1,2)]
-
-    peaks <- dplyr::filter(Test, CH2_num ==0 | CH2_num == (min(CH2_num[CH2_num!=min(CH2_num)])+1) |
-                             CH2_num == (min(CH2_num[CH2_num!=min(CH2_num)])+3))
+    peaks <- rbind(peaks1, peaks3, peaks4)
+    rm(peaks1)
+    rm(peaks2)
+    rm(peaks3)
+    rm(peaks4)
+    rm(Test)
 
     peaks <- data.frame(RA = peaks[1], mass = peaks[2])
   }else{
@@ -222,16 +225,12 @@ MFAssignCHO <- function(peaks, isopeaks = "none", ionMode, lowMW=100,highMW=1000
 
     Test <-  dplyr::group_by(peaks, KMDTest, zstar)
     Test <- dplyr::mutate(Test, CH2_num = round(mass - min(mass))/14)
-    peaksend <- dplyr::filter(Test, CH2_num !=0 & CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+1)&
-                                CH2_num != (min(CH2_num[CH2_num!=min(CH2_num)])+3))
 
-    names(peaksend)[1] <- "RA_CH2"
-    names(peaksend)[2] <- "mass_CH2"
-    peaksend <- peaksend[c(1,2,5,6,7)]
     #
     peaks <- dplyr::filter(Test, RA > 0)
     #
     peaks <- data.frame(RA = peaks[1], mass = peaks[2])
+    rm(Test)
 
   }
   #################################
