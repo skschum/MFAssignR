@@ -79,3 +79,6 @@ Please see the ReadMe for more information about changes to the code.
 04/12/2023 (Version 1.0.2)
 - Fixed an issue that could generate warnings when running MFAssign, MFAssign_RMD, MFAssignCHO, and MFAssignCHO_RMD. It also had a reported impact on performance.
 Thank you to the users for bringing the issue to my attention.
+
+05/25/2023 (Version 1.0.2)
+- Fixed an issue with IsoFiltR that occasionally caused and error regarding the lack of precision when converting between integer and double. This was addressed by "wrapping" Sect and Over with ceiling() when those numbers are first defined.
