@@ -61,8 +61,8 @@ IsoFiltR <- function(peaks, SN = 0, Carbrat = 60, Sulfrat = 30, Sulferr = 5, Car
   Data1 <- peaks[peaks$Abundance >= SN,]
   Data1<- Data1[order(Data1$Exp_mass),]
 
-  Sect <- ceiling(nrow(Data1))/10
-  Over <- round(Sect) * 0.15
+  Sect <- ceiling(ceiling(nrow(Data1))/10)
+  Over <- ceiling(round(Sect) * 0.15)
 
   Data0 <- Data1[1:(Sect + Over),]
   Data2 <- Data1[Sect:(2*Sect+Over),]
