@@ -1,0 +1,11 @@
+name: Add issues to project
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  call-workflow:
+    uses: recetox/galaxytools/.github/workflows/add_issue_to_project.yml@master
+    secrets: inherit
