@@ -1,0 +1,14 @@
+name: mfassignr-dev
+channels:
+- conda-forge
+dependencies:
+- r-base
+- r-colorramps
+- r-dplyr
+- r-ggplot2
+- r-knitr
+- r-rmarkdown
+- r-tidyr
+- r-devtools
+- r-languageserver
+- radian
