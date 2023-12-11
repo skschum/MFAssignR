@@ -75,11 +75,6 @@
 #'
 # df <- Raw_Neg_ML
 KMDNoise <- function(df, upper.y = 0.2, lower.y = 0.05, upper.x = NA, lower.x = NA) {
-
-  # Possibly remove this
-  names(df)[1] <- "mass"
-  names(df)[2] <- "intensity"
-
   if (is.na(upper.x)) upper.x <- max(df$mass)
   if (is.na(lower.x)) lower.x <- min(df$mass)
 
@@ -111,8 +106,8 @@ KMDNoise <- function(df, upper.y = 0.2, lower.y = 0.05, upper.x = NA, lower.x = 
       data = df,
       ggplot2::aes_string(
         x = "mass",
-        y = "KMD",
-        color = "int"
+        y = "kendrick_mass_defect",
+        color = "log_int"
       ), alpha = 1 / 3
     ) +
     ggplot2::geom_abline(slope = magic_number, intercept = lower.y, color = "red", size = 1) +
