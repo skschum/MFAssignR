@@ -1,0 +1,209 @@
+---
+title: "MFAssignR: test data"
+output: html_document
+date: "2023-12-05"
+---
+
+# MFAssignR
+
+Workflow for the processing of mass spectra of environmental complex mixtures
+
+# Required libraries
+```{r libraries}
+#library(devtools)
+#devtools::install_github("KristinaGomoryova/MFAssignR/MFAssignR")
+library(MFAssignR)
+library(dplyr)
+```
+
+# Data input
+
+Input data: dataframe of m/z and corresponding intensity - these columns are expected, eventually can contain 3rd column designed for RT.
+
+```{r data-input}
+# Set working directory
+setwd("Z:/Shared/bryjalab/users/kristina/PhD/RECETOX_internship/MFAssignR")
+Data <- Raw_Neg_ML
+getwd()
+#Data <- read.csv("model_data.csv")
+```
+
+# Signal-to-noise estimation and check
+
+`KMDNoise()` function is used to isolate the largest analyte free region of noise in most mass spectra. 
+
+The intensity of the peaks within this “slice” are averaged and that value is defined as the **noise level for the mass spectrum**. This value is then multiplied with a user-defined signal-to-noise ratio (typically 3–10) to remove low intensity m/z values.
+
+**Parameters:**
+
+- upper.y - the y-intercept for the upper boundary of the KMD slice; default is 0.2.
+- lower.y - the y-intercept for the lower boundary of the KMD slice; default is 0.05.
+- upper.x - the x-intercept for the upper boundary of the KMD slice; default is NA.
+- lower.x - the x-intercept for the lower boundary of the KMD slice; default is NA.
+
+**Outputs:**
+
+- “Noise” - a numeric value containing the estimated noise level.
+- “KMD”" - a KMD plot showing the KMD values for all peaks in the spectrum, with the selected noise estimation region bounded by red lines.
+
+Island of intense peaks = analyte signal, surrounded by a 'sea' of low intensity peaks = intrument noise
+
+`SNplot()` function shows the mass spectrum with the masses below and above the threshold shown in the output plot with red to blue colors, where red indicates noise.
+
+**SNplot() Parameters**
+
+- df - a two or three column data frame containing measured ion abundance and ion mass.
+- cut - the signal-to-noise threshold.
+- mass - the center mass of the window.
+- window.x - the width of window on either side of the center mass; default is 0.5.
+- window.y - the y axis of the plot by multiplying the threshold by this value; default is 10.
+
+```{r signal-to-noise-estimation}
+Noise <- KMDNoise(Data) #Using new KMDNoise() noise estimation function
+plot <- Noise[["KMD"]]  #Extracting the plot from the KMDNoise function
+plot                    #Printing the plot
+KMDN <-Noise[["Noise"]] #Extracting the estimated noise from the KMDNoise function
+KMDN                    #Printing the noise
+SNplot(Data, cut = KMDN * 6, mass = 301.1, window.x = 50, window.y = 10) #Reasonable settings for SNplot
+```
+
+# Isotope prescreening
+
+`IsoFiltR()`**` function identifies probably polyisotopic ion masses containing 1-2 13C or 34S and filters them out in order to avoid the monoisotopic MF assignment
+
+Not sure about default settings, in tutorial they say "Be sure to include a noise level, which lessens the number of peaks being considered and increases the speed of the function."
+
+`Mono_Iso <- IsoFiltR(Data, SN = 500, Carbrat = 60, Sulfrat = 30, Sulferr = 5, Carberr = 5)`
+
+**IsoFiltR() parameters:** 
+
+- Data - a two or three column data frame containing measured ion abundance and ion mass.
+- SN - a user defined signal-to-noise threshold; default is 0.
+- Carbrat - a user defined ratio to set the intensity thresholds for identifying a peak as a 13C isotopic peak; default is 60.
+- Sulfrat - a user defined ratio to set the intensity thresholds for identifying a peak as a 14S isotopic peak; default is 30.
+- Carberr - a user defined value to determine the required mass accuracy for matching a 12C to a 13C; default is 5 (ppm)
+- Sulferr - a user defined value to determine the required mass accuracy for matching a 32C to a 34C; default is 5 (ppm)
+
+**IsoFiltR()** output:
+
+A list of dataframes:
+
+- 'Mono' = dataframe containing monoisotopic masses and abundancies, as well as those unclassified
+- 'Iso' = dataframe containing polyisotopic masses
+
+When the two data frame outputs from IsoFiltR are put into MFAssign, the function will match the assigned monoisotopic masses to their corresponding polyisotopic masses.
+
+```{r isotope-prescreening}
+Isotope <- IsoFiltR(Data)  #Input for IsoFiltR
+
+Mono <- Isotope[["Mono"]]
+Iso <- Isotope[["Iso"]]
+```
+
+# CHO formula assignment
+
+For the quick assignment prior to internal mass recalibration, using only CHO elements.
+
+`MFAssignCHO()` function **input parameters**:
+
+- peaks - the input data frame with the measured ion mass in the first column followed by measured ion abundance in the second column; the column names can be anything.If the input column is a three column data frame, the third column can also have any name.
+- isopeaks - the input isotopic masses data frame with the same structure as “peaks”; if the two data frames (peaks and isopeaks) come from the IsoFiltR function they will be formatted correctly.
+- ionMode - the ionization mode with either “pos” for positive mode and “neg” for negative mode; the parameters are case sensitive.
+- many more, as described [here](https://github.com/KristinaGomoryova/MFAssignR)
+
+**Outputs**:
+
+A list containing 3 dataframes and 4 plots. **Dataframes** are **Unambig**, representing assigned unambigous MF along with other useful parameters; **Ambig** containing the asigned ambiguous MF, and **None**, containing ion masses not assigned to a MF.
+
+**Plots** are as following:
+
+- MSAssign - the mass spectrum of the assigned, unassigned, and isotope peaks shown in different colors (green, red, and blue, respectively).
+- Error - an error plot with the exp_mass vs. absolute error for the assigned MF. Unambiguous MF are blue and ambiguous MF are red.
+- MSgroups - a reconstructed mass spectrum of the assigned peaks colored by their elemental composition (CHO, CHNO, etc.). CHO, CHNO, CHOS, CHNOS, CH, CHN elemental groups are considered, all other molecular groups are classified as “Other”. The plot is faceted to separate the ambiguous and unambiguous MF assignments.
+- VK - the van Krevelen plot of the assigned MF colored by their elemental composition, similar to the MSgroups plot. The plot is faceted to separate the ambiguous and unambiguous MF assignments.
+
+**Comment** 
+At this point, there are ~1900 warnings, and R session gets restarted (edit: restarting got resolved by deleting the particular command from internal R function)
+
+```{r CHO-formula-assignment}
+Assign <- MFAssignCHO(Mono, Iso, ionMode = "neg", lowMW =50, highMW = 1000, ppm_err = 3, H_Cmin = 0.3, HetCut = "off", NMScut = "on", SN = 6*KMDN)   #Standard parameters for negative mode
+
+# The output list includes the following datasets. 
+Unambig1 <- Assign[["Unambig"]]  #Unambiguous MF assignments data frame
+Ambig1 <- Assign[["Ambig"]]  #Ambiguous MF assignments data frame
+Unassigned1 <- Assign[["None"]] #Unassigned values data frame
+
+# Mass spectrum showing assigned, unassigned, and isotope peaks. Assigned peaks are in green, unassigned peaks are in red, and isotope peaks are in blue.
+MSAssign <- Assign[["MSAssign"]]
+
+# Error plot with m/z vs. absolute error (ppm) including the unambiguous MF in blue and the ambiguous MF in red.
+Error <- Assign[["Error"]]
+
+# Mass spectrum showing the assigned peaks with color to indicate the elemental group. The plot is faceted by ambiguity of the MF assignments.
+MSgroups <- Assign[["MSgroups"]]
+
+# van Krevelen plot colored by elemental group and faceted by ambiguity of the MF assignments.
+VK <- Assign[["VK"]]
+
+MSAssign
+Error
+MSgroups
+VK
+```
+
+# Highlighting possible recalibrant series
+
+The purpose of this step is internal mass calibration. `RecalList` provides a list of recalibrant series. The function selects CHO homologous series with >=3 members.
+
+**Input** of `RecalList`: output of MFAssign() or MFAssignCHO() functions.
+
+**Output** of `RecalList`:
+
+A dataframe, with all eligible series which user can review.
+
+A following warning was thrown upon running the function: 
+"Warning: In subset.data.frame(aggregate(number ~ SeriesAdd + DBE, df, function(x) number = sum(x, 
+    na.rm = TRUE)), na.action = NULL) :
+ extra argument ‘na.action’ will be disregarded"
+
+```{r recalibrant-series}
+check <- RecalList(df = Unambig1)
+```
+
+# Qualitative check of recalibrant series and mass recalibration.
+
+`Recal()` function performs recalibration on the Mono and Iso outputs from the IsoFiltR() function and generates a mass spectrum highlighting the selected recalibrant series. The purpose is to remove systematic biases in the calibration.
+
+**Input** of the `Recal()` function: the dataframe output fron MFAssign function and output of IsoFiltR function and chosen recalibrant series (up to 10 CH2 homologous series which will be used as internal recalibrant ions; they should cover the entire mass range of interest and should be among the most abundant peaks in their region in the spectrum). This function also recalibrates up to two mass lists using the chosen recalibrants. It is best to use the "Mono" and "Iso" outputs of the IsoFiltR() function.
+
+**Output**: recalibrated masses, can be directly fed into MFAssign for MF assignment of recalibrated masses. The function outputs also a data frame containing the recalibrants with their original mass error and the new, recalibrated mass error.
+
+```{r mass-recalibration}
+Test <- Recal(df = Unambig1, peaks = Mono, isopeaks = Iso, mode = "neg", SN = 6*KMDN, mzRange = 50, series1 = "O8_H_9", series2 = "O6_H_3", series3 = "O4_H_2", series4 = "O13_H_13", series5 = "O15_H_16")
+
+Plot <- Test[["Plot"]]
+Plot      #This plot is slow to generate
+Mono2 <- Test[["Mono"]]
+Iso2 <- Test[["Iso"]]
+List <- Test[["RecalList"]]
+
+```
+
+# Final formula assignment
+```{r final-assignment}
+Assign <- MFAssign(Mono2, Iso2, ionMode = "neg", lowMW =50, highMW = 1000,  Nx = 3, Sx = 1,  ppm_err = 3, H_Cmin = 0.3, HetCut = "off", DeNovo = 400, NMScut = "on", SN = 6*KMDN)
+
+
+Unambig2 <- Assign[["Unambig"]]
+Ambig2 <- Assign[["Ambig"]]
+Unassigned2 <- Assign[["None"]]
+
+MSAssign <- Assign[["MSAssign"]]
+Error <- Assign[["Error"]]
+MSgroups <- Assign[["MSgroups"]]
+VK <- Assign[["VK"]]
+MSAssign
+Error
+MSgroups
+VK
+```
