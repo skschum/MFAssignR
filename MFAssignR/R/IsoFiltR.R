@@ -151,7 +151,7 @@ IsoFiltR <- function(peaks, SN = 0, Carbrat = 60, Sulfrat = 30, Sulferr = 5, Car
 
     Data$KMDrdiff <- Data$KMDr - Data$KMDr1
     Data$KMDdiff <- Data$KMD - Data$KMD1
-
+    
     Pairs <- Data[abs(Data$KMDdiff) < 0.00249 & ((Data$KMDrdiff < -0.29051 & Data$KMDrdiff > -0.29349) |
       (Data$KMDrdiff < 0.70949 & Data$KMDrdiff > 0.7075)), ]
 

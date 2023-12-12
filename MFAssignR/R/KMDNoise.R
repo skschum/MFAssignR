@@ -111,8 +111,8 @@ KMDNoise <- function(df, upper.y = 0.2, lower.y = 0.05, upper.x = NA, lower.x = 
       data = df,
       ggplot2::aes_string(
         x = "mass",
-        y = "KMD",
-        color = "int"
+        y = "kendrick_mass_defect",
+        color = "log_int"
       ), alpha = 1 / 3
     ) +
     ggplot2::geom_abline(slope = magic_number, intercept = lower.y, color = "red", size = 1) +
